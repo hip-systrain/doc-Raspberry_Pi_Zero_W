@@ -144,13 +144,14 @@ Raspberry Piの公式ドキュメントでは、UARTを使用した起動時の�
 3. Raspberry Piの電源端子に電源ケーブルを接続し、電源を投入する。
 4. PCからSSHでRaspberry Piに接続し、ターミナルを開く。
 5. Tera Termを起動し、CH340Eに割り当てられたCOMポートを選択して接続する。
-6. Raspberry PiのターミナルからC言語プログラム「a」を実行する。<br>C言語プログラム「a」は下記に記載
+6. Raspberry Piのターミナルからプログラム「PItoPC_SerialSend」を実行する。<br>プログラム「PItoPC_SerialSend」は下記にC言語とPythonの2つで記載
 7. Tera Termに「Hello」と表示されることを確認する。
 
 #### ピン割り当て
 ![Z1_2.3_(1)](images/Z1_2.3_(1).png)
 
-#### C言語プログラムa
+#### プログラム「PItoPC_SerialSend」
+C言語
 ```C
 #include <stdio.h>
 #include <stdlib.h>
@@ -227,4 +228,39 @@ int main(void)
 
     return 0;
 }
+```
+
+Python
+```Python
+import serial
+import time
+
+# シリアル通信の設定
+ser = serial.Serial(
+    port='/dev/serial0',
+    baudrate=115200,
+    bytesize=serial.EIGHTBITS,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_ONE
+)
+
+print("シリアル通信を開始しました")
+
+try:
+    while True:
+        # PCへ送信する文字列
+        message = "Hello PC!"
+
+        # 文字列をシリアル送信
+        ser.write((message + "\r\n").encode("utf-8"))
+
+        print("送信:", message)
+
+        time.sleep(1)
+
+except KeyboardInterrupt:
+    print("\n送信を終了します")
+
+finally:
+    ser.close()
 ```
