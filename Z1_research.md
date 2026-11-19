@@ -3,7 +3,7 @@
 実際の手順についての記録は別途、動作確認報告にて示すこととする。
 
 ## 0章 概要
-### 0.0節 Raspberry Pi Zero Wの概要
+### 0.0節 Raspberry Pi Zero Wの概要（0.3節の事前知識でいいかも）
 Raspberry Piは、基板上にコンピュータとしての機能を備えた小型コンピュータである。microSDカードにOSをインストールすることで、一般的なPCと同様にプログラムを実行できる。<br>
 今回使用するRaspberry Pi Zero Wは、Wi-Fiなどの無線通信機能を備えた小型モデルである。ネットワーク経由でPCから接続できるほか、GPIOと呼ばれる端子を利用して外部機器と通信することもできる。
 
@@ -30,6 +30,21 @@ Raspberry Piは、基板上にコンピュータとしての機能を備えた�
 | USBケーブル(Type-C) | 1人1本 | CH340Eへの給電およびPCとのシリアル通信 |
 
 ### 0.3節 前提知識・事前準備
+前提となる知識を記載する。
+- Raspberry Pi Zero Wとは
+- microSDカードとOSの関係
+- SSHとは
+- GPIOとUART(シリアル通信)の違い
+- 通信条件
+
+通信条件の項目説明
+| 設定項目 | 今回の設定値 | 設定値の意味 |
+| ボーレート | 115200 bps | 1秒間に送信するビット数を表す。 |
+| データ長 | 8 bit | 1回のデータ送信で使用するデータビット数を表す。 |
+| パリティ | None | パリティビットによる誤り検出を行わない設定。 |
+| ストップビット | 1 bit | 1回のデータ送信の終了を示すビット数を表す。 |
+| フロー制御 | None | 送受信のタイミングを制御する仕組みを使用しない設定。 |
+
 
 参考資料
 - [CH340E使用　USBシリアル変換モジュール](https://akizukidenshi.com/goodsaffix/AE-CH340E-TYPEC.pdf?utm_source=chatgpt.com)
@@ -112,8 +127,104 @@ Tera Termを起動し、USBシリアル変換モジュールを使用してRaspb
 | 4 | 「OK」をクリックする | Tera Termの端末画面が表示されること |
 
 ### 2.2節 通信設定(ポート、ボーレートなど)
+Raspberry Piの公式ドキュメントでは、UARTを使用した起動時のデバッグ出力について、受信側の通信条件として115200 bps、データ長8 bit、パリティなし、ストップビット1 bitが示されている。
+今回もRaspberry PiのUARTを使用してデバッグ用の文字列を送信し、通信状態を確認するため、公式ドキュメントの設定を参考に、同じ通信条件を採用する。
+
+![Z1_2.2_(1)](images/Z1_2.2_(1).png)
+
+参考資料
+- [BOOT UART設定](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html?utm_source=chatgpt.com)
 
 
 ### 2.3節 動作確認
+動作確認の手順を示す。
 
+1. Raspberry PiとCH340Eをジャンパワイヤで接続する。<br>つなぎ方は下記「ピン割り当て」を参照すること。
+2. CH340EのUSB Type-C端子とPCのUSB端子をUSBケーブルで接続する。
+3. Raspberry Piの電源端子に電源ケーブルを接続し、電源を投入する。
+4. PCからSSHでRaspberry Piに接続し、ターミナルを開く。
+5. Tera Termを起動し、CH340Eに割り当てられたCOMポートを選択して接続する。
+6. Raspberry PiのターミナルからC言語プログラム「a」を実行する。<br>C言語プログラム「a」は下記に記載
+7. Tera Termに「Hello」と表示されることを確認する。
 
+#### ピン割り当て
+![Z1_2.3_(1)](images/Z1_2.3_(1).png)
+
+#### C言語プログラムa
+```C
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+
+int main(void)
+{
+    int serial_fd;
+    struct termios tty;
+    const char *message = "Hello PC!\r\n";
+
+    // シリアルポートを開く
+    serial_fd = open("/dev/serial0", O_WRONLY | O_NOCTTY);
+
+    if (serial_fd < 0)
+    {
+        perror("シリアルポートを開けませんでした");
+        return 1;
+    }
+
+    // 現在のシリアル通信設定を取得
+    if (tcgetattr(serial_fd, &tty) != 0)
+    {
+        perror("通信設定を取得できませんでした");
+        close(serial_fd);
+        return 1;
+    }
+
+    // 通信速度を115200bpsに設定
+    cfsetispeed(&tty, B115200);
+    cfsetospeed(&tty, B115200);
+
+    // 通信形式を設定（8N1）
+    tty.c_cflag &= ~PARENB;  // パリティなし
+    tty.c_cflag &= ~CSTOPB;  // ストップビット1
+    tty.c_cflag &= ~CSIZE;
+    tty.c_cflag |= CS8;      // データビット8
+    tty.c_cflag |= CLOCAL;   // モデム制御を無効化
+    tty.c_cflag |= CREAD;    // 受信を有効化
+
+    // フロー制御を無効化
+    tty.c_cflag &= ~CRTSCTS;
+
+    // 入出力処理の設定
+    tty.c_iflag = 0;
+    tty.c_oflag = 0;
+    tty.c_lflag = 0;
+
+    // 通信設定を反映
+    if (tcsetattr(serial_fd, TCSANOW, &tty) != 0)
+    {
+        perror("通信設定を反映できませんでした");
+        close(serial_fd);
+        return 1;
+    }
+
+    printf("シリアル通信を開始しました\n");
+
+    while (1)
+    {
+        // PCへ文字列を送信
+        write(serial_fd, message, strlen(message));
+
+        printf("送信: Hello PC!\n");
+
+        sleep(1);
+    }
+
+    // シリアルポートを閉じる
+    close(serial_fd);
+
+    return 0;
+}
+```
