@@ -53,12 +53,13 @@ Raspberry Piは、基板上にコンピュータとしての機能を備えた�
 ## 1章 開発環境構築
 ### 1.1節 ツールのインストール
 必要なツールを以下の表にまとめる。
+工程としては、「確認→インストール→確認」の手順で行うものとする。
 
 | ツール名 | カテゴリ | 用途 |
 | --- | --- | --- |
 | Raspberry Pi Imager | ソフトウェア | microSDカードにRaspberry Pi OSを書き込む |
-| SSH | コマンドラインツール | Raspberry Piにリモート接続して操作する |
-| SCP | コマンドラインツール | PCとRaspberry Pi間でファイルを転送する |
+| Raspberry Pi OS | OS構築 | Raspberry Pi Imagerを使用してmicroSDカードにOSを書き込み、初期設定を行う |
+| OpenSSH | コマンドラインツール | Wi-Fi経由のSSH接続によるRaspberry Piの遠隔操作、およびSCPによるPCとRaspberry Pi間のファイル転送 |
 | apt | OS標準コマンド | パッケージのインストール・更新・管理を行う |
 | build-essential | APTパッケージ | GCCやMakeなど、C言語のコンパイル・ビルドに必要なツールをまとめて導入する |
 | libgpiod-dev | APTパッケージ | C言語からGPIOを操作するための開発ライブラリ |
@@ -92,8 +93,7 @@ Raspberry Piは、基板上にコンピュータとしての機能を備えた�
 
 | 項目名 | 確認方法 | 確認内容 |
 | Raspberry Pi Imager | アプリケーション一覧から起動する | 起動できること |
-| SSH | PowerShellで ssh -V を実行する | SSHクライアントのバージョンが表示されること |
-| SCP | PowerShellで scp を実行する | SCPコマンドの使用方法が表示されること |
+| OpenSSH | PowerShellで ssh -V を実行する | SSHクライアントのバージョンが表示されること |
 | apt | apt --version | aptのバージョンが表示されること |
 | build-essential | gcc --version、make --version | GCCとMakeのバージョンが表示されること |
 | libgpiod-dev | pkg-config --modversion libgpiod | libgpiodのバージョンが表示されること |
@@ -130,11 +130,10 @@ Tera Termを起動し、USBシリアル変換モジュールを使用してRaspb
 Raspberry Piの公式ドキュメントでは、UARTを使用した起動時のデバッグ出力について、受信側の通信条件として115200 bps、データ長8 bit、パリティなし、ストップビット1 bitが示されている。
 今回もRaspberry PiのUARTを使用してデバッグ用の文字列を送信し、通信状態を確認するため、公式ドキュメントの設定を参考に、同じ通信条件を採用する。
 
-![Z1_2.2_(1)](images/Z1_2.2_(1).png)
+![Z1_2.2_(1)](images/調査_2.2_(1).png)
 
 参考資料
 - [BOOT UART設定](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html?utm_source=chatgpt.com)
-
 
 ### 2.3節 動作確認
 動作確認の手順を示す。
@@ -148,7 +147,7 @@ Raspberry Piの公式ドキュメントでは、UARTを使用した起動時の�
 7. Tera Termに「Hello」と表示されることを確認する。
 
 #### ピン割り当て
-![Z1_2.3_(1)](images/Z1_2.3_(1).png)
+![Z1_2.3_(1)](images/調査_2.3_ピン割り当て(1).png)
 
 #### プログラム「PItoPC_SerialSend」
 C言語
