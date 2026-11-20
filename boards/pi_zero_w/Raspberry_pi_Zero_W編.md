@@ -6,6 +6,67 @@
   - このコメントはプレビューには表示されない。消さずに残してよい。
 -->
 
+# 【ボード名】開発手順書
+
+| 項目 | 内容 |
+|---|---|
+| 対象ボード | |
+| 開発言語 | |
+| IDE・ツール | (名称とバージョン) |
+| SDK・ライブラリ | (名称とバージョン) |
+| 開発PCのOS | (例:Windows 11 24H2) |
+| 最終検証日 | (yyyy/mm/dd) |
+
+## 改版履歴
+
+| 版 | 日付 | 担当者 | 内容 |
+|---|---|---|---|
+| 0.1 | (yyyy/mm/dd) | | 新規作成 |
+
+---
+
+## 0. 概要
+
+### 0.1 この手順書でできること
+<!-- 読者がこの手順書を最後まで進めると何ができるようになるかを書く -->
+
+### 0.2 必要な機材
+
+| 品名 | 数量 | 備考 |
+|---|---|---|
+| | | |
+
+### 0.3 前提知識・事前準備
+<!-- 既存の Git/GitHub 運用・Redmine 運用を参考に、前提とする知識と準備を書く -->
+
+---
+
+## 1. 開発環境構築
+
+### 1.1 ツールのインストール
+### 1.2 ドライバのインストール
+### 1.3 インストールできたことの確認
+
+## 2. シリアルターミナルの使い方
+
+### 2.1 使用するツールと接続方法
+### 2.2 通信設定(ポート、ボーレートなど)
+### 2.3 動作確認
+
+## 3. プロジェクト作成
+
+### 3.1 新規プロジェクトの作成
+### 3.2 プロジェクトの構成(フォルダ・ファイルの役割)
+
+## 4. コーディング・ビルド・書込み(RTOSなし)
+
+<!-- 各題材の節は「作るもの → 配線 → プログラム → ビルドと書込み → 動作確認」の順で書く -->
+
+### 4.1 題材1:LED点滅
+### 4.2 題材2:ボタン入力
+### 4.3 題材3:UART出力
+### 4.4 題材4:タイマ割込み
+
 ## 5. コーディング・ビルド・書込み（FreeRTOS）
 
 本手順書で使用するRaspberry Pi Zero Wは、Linuxが動作するボードである。
@@ -232,7 +293,6 @@ list 20
 | `next`（`n`） | 次の行へ進む。関数呼び出しがあっても関数の中には入らない。 |
 | `step`（`s`） | 次の行へ進む。関数呼び出しがある場合は関数の中に入る。 |
 | `continue`（`c`） | 次のブレークポイントまで実行を再開する。 |
-| `finish` | 現在実行中の関数が終了するまで実行する。 |
 
 #### 4. ブレークポイントの削除
 
@@ -334,6 +394,8 @@ info registers
 | | | |
 
 ## 8. 参考資料
+- GDBマニュアルの和訳(https://www.asahi-net.or.jp/~wg5k-ickw/html/online/gdb-5.0/gdb-ja_toc.html)
+- pthreads(7) — POSIXスレッドの概要(https://man7.org/linux/man-pages/man7/pthreads.7.html?utm_source=chatgpt.com)
 
 ## 9. マルチスレッド(pthread)
 本章では、pthreadを使用したマルチスレッド処理について説明する。
@@ -454,6 +516,76 @@ gcc -pthread -o thread_test thread_test.c　-lgpiod
 
 メインスレッドで2つのスレッドを作成し、それぞれの処理を並行して実行する。
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Main as メインスレッド
+    participant LED as LED制御スレッド
+    participant SW as スイッチ入力スレッド
+    participant GPIO as GPIO(libgpiod)
+
+    Main->>Main: mutex・stop_flag初期化
+
+    Main->>LED: pthread_create()
+    activate LED
+    LED->>GPIO: gpiod_chip_open()
+    LED->>GPIO: request_gpio(GPIO17, OUTPUT)
+    GPIO-->>LED: request
+
+    Main->>SW: pthread_create()
+    activate SW
+    SW->>GPIO: gpiod_chip_open()
+    SW->>GPIO: request_gpio(GPIO24, INPUT)
+    GPIO-->>SW: request
+
+    Main->>Main: 30秒間 sleep()
+
+    par LED制御
+        loop 終了要求まで繰り返す
+            LED->>GPIO: GPIO17をHIGH
+            LED->>LED: sleep(1秒)
+            LED->>GPIO: GPIO17をLOW
+            LED->>LED: sleep(1秒)
+            LED->>Main: is_stopping()で終了確認
+        end
+    and スイッチ監視
+        loop 終了要求まで繰り返す
+            SW->>GPIO: GPIO24の入力値を取得
+            GPIO-->>SW: 入力値
+            alt スイッチが押された
+                SW->>SW: 前回の状態を確認
+                alt 前回は未押下
+                    SW->>Main: 押下メッセージを表示
+                    Note over SW: previous_pressed = 1
+                end
+            else スイッチが離された
+                SW->>SW: previous_pressed = 0
+            end
+            SW->>SW: usleep(100ms)
+        end
+    end
+
+    Main->>Main: mutexをロック
+    Main->>Main: stop_flag = 1
+    Main->>Main: mutexをアンロック
+
+    Main->>LED: pthread_join()
+    LED->>GPIO: GPIO17をLOW
+    LED->>GPIO: gpiod_line_request_release()
+    LED->>GPIO: gpiod_chip_close()
+    LED-->>Main: スレッド終了
+    deactivate LED
+
+    Main->>SW: pthread_join()
+    SW->>GPIO: gpiod_line_request_release()
+    SW->>GPIO: gpiod_chip_close()
+    SW-->>Main: スレッド終了
+    deactivate SW
+
+    Main->>Main: pthread_mutex_destroy()
+    Main->>Main: プログラム終了
+```
+
 #### 処理の流れ
 
 プログラム全体の処理の流れを以下に示す。
@@ -508,6 +640,105 @@ gcc -pthread -o thread_test thread_test.c -lgpiod
 | スレッド2 | スイッチの入力を監視し、LEDの点滅間隔を変更する |
 
 スイッチ入力用のスレッドで変更した点滅間隔を、LED制御用のスレッドで参照することで、スレッド間でデータを共有する。
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Main as メインスレッド
+    participant LED as LED制御スレッド
+    participant SW as スイッチ入力スレッド
+    participant Mutex as mutex
+    participant GPIO as GPIO(libgpiod)
+
+    Main->>Main: mutex・stop_flag初期化
+    Note over Main: blink_interval = 1.0秒
+
+    Main->>LED: pthread_create()
+    activate LED
+    LED->>GPIO: gpiod_chip_open()
+    LED->>GPIO: request_gpio(GPIO17, OUTPUT)
+    GPIO-->>LED: request
+
+    Main->>SW: pthread_create()
+    activate SW
+    SW->>GPIO: gpiod_chip_open()
+    SW->>GPIO: request_gpio(GPIO24, INPUT)
+    GPIO-->>SW: request
+
+    Main->>Main: 30秒間 sleep()
+
+    par LED制御
+        loop 終了要求まで繰り返す
+            LED->>Mutex: pthread_mutex_lock()
+            LED->>LED: stop_flag・blink_interval取得
+            LED->>Mutex: pthread_mutex_unlock()
+
+            alt stop_flag == 1
+                LED->>LED: ループ終了
+            else stop_flag == 0
+                LED->>GPIO: GPIO17をHIGH
+                LED->>LED: interval秒待機
+                LED->>GPIO: GPIO17をLOW
+                LED->>LED: interval秒待機
+            end
+        end
+    and スイッチ監視
+        loop 終了要求まで繰り返す
+            SW->>Mutex: is_stopping()で終了状態を確認
+            SW->>Mutex: pthread_mutex_lock()
+            SW->>Mutex: stop_flag取得・unlock
+
+            alt 終了要求あり
+                SW->>SW: ループ終了
+            else 終了要求なし
+                SW->>GPIO: GPIO24の入力値を取得
+                GPIO-->>SW: 入力値
+
+                alt スイッチが押された
+                    SW->>SW: previous_pressedを確認
+                    alt 前回は未押下
+                        SW->>SW: 30ms待機（チャタリング対策）
+                        SW->>GPIO: GPIO24の入力値を再取得
+                        GPIO-->>SW: 入力値
+
+                        alt 再確認でも押下中
+                            SW->>Mutex: pthread_mutex_lock()
+                            SW->>SW: blink_intervalを切り替え
+                            Note over SW: 1.0秒 ⇔ 0.2秒
+                            SW->>Mutex: pthread_mutex_unlock()
+                            SW->>SW: 点滅間隔を表示
+                            SW->>SW: previous_pressed = 1
+                        end
+                    end
+                else スイッチが離された
+                    SW->>SW: previous_pressed = 0
+                end
+
+                SW->>SW: 50ms待機
+            end
+        end
+    end
+
+    Main->>Mutex: pthread_mutex_lock()
+    Main->>Main: stop_flag = 1
+    Main->>Mutex: pthread_mutex_unlock()
+
+    Main->>LED: pthread_join()
+    LED->>GPIO: GPIO17をLOW
+    LED->>GPIO: gpiod_line_request_release()
+    LED->>GPIO: gpiod_chip_close()
+    LED-->>Main: スレッド終了
+    deactivate LED
+
+    Main->>SW: pthread_join()
+    SW->>GPIO: gpiod_line_request_release()
+    SW->>GPIO: gpiod_chip_close()
+    SW-->>Main: スレッド終了
+    deactivate SW
+
+    Main->>Mutex: pthread_mutex_destroy()
+    Main->>Main: プログラム終了
+```
 
 #### スレッド間のデータ共有
 
@@ -583,7 +814,7 @@ gcc -pthread -o thread_test thread_test.c -lgpiod
 - LEDが点滅すること。
 - 白スイッチを操作するとLEDの点滅速度が切り替わること。
 - スイッチの操作を繰り返しても正常に動作すること。
-<!--
+<--
 ### 9.5 GDBを使用したマルチスレッドのデバッグ
 
 #### デバッグの説明
