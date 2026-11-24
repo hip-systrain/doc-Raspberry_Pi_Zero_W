@@ -177,7 +177,7 @@ Raspberry Pi OS (32-bit)を選択し、次へを押下する。<br>
 1. 下記のリンクより、 TerTerm 公式 GitHub にアクセスする。  
 [TerTerm 公式 GitHub](https://github.com/TeraTermProject/teraterm/releases)
 1. TeraTerm 5.7.1の Assets から **teraterm-5.7.1-x64.exe** をダウンロードする。  
-![TeraTermダウンロード画面](../images/Z1_TeraTermDownLoad.png)  
+![TeraTermダウンロード画面](../images/S1_TeraTermDownLoad.png)  
 1. ダウンロードした**teraterm-5.7.1-x64.exe** をダブルクリックする。
 ![TeraTermダウンロード選択画面](../images/S1_TeraTermDownLoadSelect.png)  
 1. 「インストールモードの選択」画面が開かれ、**現在のユーザー用にインストール(M)(推奨)** を押下する。  
