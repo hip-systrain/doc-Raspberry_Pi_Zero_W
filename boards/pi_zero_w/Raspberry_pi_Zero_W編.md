@@ -136,8 +136,43 @@ Raspberry Pi Zero Wでは、Linuxを搭載した Raspberry Pi OS 上でプログ
 
 > 注意：Raspberry Pi Imager で設定したホスト名・ユーザー名・パスワードは、後で SSH 接続するときに使用するため、忘れないように控えておくこと。
 
+#### 1.1.2 Raspberry Pi OS の書き込み・初期設定
+1. Raspberry Pi Zero WのマイクロSDをPCに挿入する
+2. Raspberry Pi Imagerを起動する
+3. Deviceを設定する<br>
+Raspberry Pi Zeroを選択し、次へを押下する。<br>
+<img src="images/動確_1.1_RasPiOS(1).png" width="25%">
+4. OSを設定する<br>
+Raspberry Pi OS (32-bit)を選択し、次へを押下する。<br>
+<img src="images/動確_1.1_RasPiOS(2).png" width="25%">
+5. ストレージを設定する<br>
+表示されているストレージデバイスから選択し、次へを押下する。<br>
+**※ Exclude system drivesのチェックはつけておく。**<br>
+<img src="images/動確_1.1_RasPiOS(3).png" width="25%">
+6. hostnameを設定する<br>
+文字、数字、ハイフンのみで入力し、次へを押下する。<br>
+<img src="images/動確_1.1_RasPiOS(4).png" width="25%">
+7. Localisationを設定する<br>
+<img src="images/動確_1.1_RasPiOS(5).png" width="25%">
+8. usernameを設定する<br>
+小文字で、文字、数字、アンダースコア、ハイフンのみで入力、パスワードも入力を行い、次へを押下する。<br>
+<img src="images/動確_1.1_RasPiOS(6).png" width="25%">
+9. Wi-Fiを設定する<br>
+<img src="images/動確_1.1_RasPiOS(7).png" width="25%">
+10. SSH authenticationを設定する<br>
+<img src="images/動確_1.1_RasPiOS(8).png" width="25%">
+11. Raspberry Pi Connectを設定する<br>
+<img src="images/動確_1.1_RasPiOS(9).png" width="25%">
+12. Writeを押下し、書き込みを始める<br>
+<img src="images/動確_1.1_RasPiOS(10).png" width="25%">
+13. I UNDERSTAND, ERASE AND WRITEを押下する<br>
+書き込み時に、現在マイクロSDに書かれている内容を削除してから書き込むことを確認されているため、理解していることを伝える。<br>
+<img src="images/動確_1.1_RasPiOS(11).png" width="25%">
+14. 書き込みが終了したらFINISHを押下する<br>
+<img src="images/動確_1.1_RasPiOS(12).png" width="25%">
+15. マイクロSDカードを抜く
 
-#### 1.1.1 TeraTermのインストール
+#### 1.1.3 TeraTermのインストール
 本節では、PC とマイコンをシリアル通信で接続し、データの送受信や確認をするために使用する TeraTerm のインストール手順を記載する。
 1. 下記のリンクより、 TerTerm 公式 GitHub にアクセスする。  
 [TerTerm 公式 GitHub](https://github.com/TeraTermProject/teraterm/releases)
@@ -168,7 +203,7 @@ Raspberry Pi Zero Wでは、Linuxを搭載した Raspberry Pi OS 上でプログ
     >確認：TeraTerm セットアップウィザードの完了が表示されればインストール成功  
     ![インストール完了画面](../images/S1_TeraTermInstallOK.png)  
 
-#### 1.1.2 Windows OpenSSH の確認
+#### 1.1.4 Windows OpenSSH の確認
 
 Windows OpenSSH は、開発PCから Raspberry Pi Zero W に SSH 接続したり、ファイルを転送したりするために使用する。
 
@@ -185,7 +220,7 @@ ssh -V
 
 > 注意：コマンドが認識されない場合は、Windows のオプション機能から OpenSSH クライアントをインストールする。
 
-#### 1.1.3 Raspberry Pi 側の開発ツールの準備
+#### 1.1.5 Raspberry Pi 側の開発ツールの準備
 
 Raspberry Pi 上で C 言語のプログラムをビルド・デバッグするため、以下のツールを使用する。
 
