@@ -12,7 +12,7 @@
 | ---- | ---- |
 | 対象ボード | Raspberry Pi Zero W |
 | 開発言語 | C / Python |
-| IDE・ツール | Tera Term 5.7.1 / Raspberry Pi Imager v2.0.12 / <br>OpenSSH_10 / GCC 14.2.0 / <br>GNU Make 4.4.1 / GDB 16.2 |
+| IDE・ツール | TeraTerm 5.7.1 / Raspberry Pi Imager v2.0.12 / <br>OpenSSH_10 / GCC 14.2.0 / <br>GNU Make 4.4.1 / GDB 16.2 |
 | SDK・ライブラリ | libgpiod 2.2.1 |
 | 開発PCのOS | Windows 11 26H2 |
 | 最終検証日 | 2026/11/20 |
@@ -196,7 +196,7 @@ Raspberry Pi 上で C 言語のプログラムをビルド・デバッグする�
 | GDB | プログラムのデバッグ |
 | libgpiod | GPIO の操作 |
 
-1. Tera Term を起動する。
+1. TeraTerm を起動する。
 2. Raspberry Pi Zero W に SSH 接続する。
 3. パッケージ情報を更新する。
 
@@ -242,14 +242,14 @@ ssh -V
 ```
 
 3. OpenSSH のバージョンが表示されることを確認する。
-4. Tera Term を起動できることを確認する。
+4. TeraTerm を起動できることを確認する。
 5. デバイスマネージャーで CH340E が認識されていることを確認する。
 
 > 確認：各ツールが起動でき、CH340E が認識されていれば成功。
 
 #### 1.3.2 Raspberry Pi 側の確認
 
-1. Tera Term を起動する。
+1. TeraTerm を起動する。
 2. Raspberry Pi Zero W に SSH 接続する。
 3. GCC のバージョンを確認する。
 
@@ -279,17 +279,17 @@ pkg-config --modversion libgpiod
 
 ## 2. シリアルターミナルの使い方
 
-本章では、CH340E USB シリアル変換モジュールを使用して、開発PCと Raspberry Pi Zero W をシリアル通信で接続し、Tera Term から操作する方法を説明する。
+本章では、CH340E USB シリアル変換モジュールを使用して、開発PCと Raspberry Pi Zero W をシリアル通信で接続し、TeraTerm から操作する方法を説明する。
 
 ### 2.1 使用するツールと接続方法
 
-本手順では、Tera Term と CH340E USB シリアル変換モジュールを使用して、Raspberry Pi Zero W と開発PCを接続する。
+本手順では、TeraTerm と CH340E USB シリアル変換モジュールを使用して、Raspberry Pi Zero W と開発PCを接続する。
 
 #### 2.1.1 使用するツール
 
 | ツール | 用途 |
 |---|---|
-| Tera Term | シリアル通信によるコマンド入力・出力確認 |
+| TeraTerm | シリアル通信によるコマンド入力・出力確認 |
 | CH340E USB シリアル変換モジュール | PCとRaspberry Pi間のシリアル通信 |
 | USBケーブル | CH340Eと開発PCの接続 |
 | ジャンパーワイヤー | CH340EとRaspberry Piの接続 |
@@ -316,22 +316,22 @@ pkg-config --modversion libgpiod
 
 > 注意：CH340E の信号は 5V、Raspberry Pi Zero W は 3.3V。CH340E の TXD を Raspberry Pi Zero W につなぐと、Raspberry Pi Zero W が壊れるおそれがある。
 
-#### 2.1.3 Tera Term の起動と接続
+#### 2.1.3 TeraTerm の起動と接続
 
-1. Tera Term を起動する。
+1. TeraTerm を起動する。
 2. 「新しい接続」画面で「シリアル」を選択する。
 3. 接続先として CH340E に割り当てられた COM ポートを選択する。
 4. 「OK」を押下する。
 
-![Tera Term新しい接続画面](../images/S2_TeraTermNewConnection.png)
+![TeraTerm新しい接続画面](../images/S2_TeraTermNewConnection.png)
 
-> 確認：Tera Term の画面が開き、選択した COM ポートに接続できれば成功。
+> 確認：TeraTerm の画面が開き、選択した COM ポートに接続できれば成功。
 
 ### 2.2 通信設定
 
-Raspberry Pi Zero W とシリアル通信を行うため、Tera Term の通信設定を行う。
+Raspberry Pi Zero W とシリアル通信を行うため、TeraTerm の通信設定を行う。
 
-1. Tera Term のメニューから「設定」→「シリアルポート」を選択する。
+1. TeraTerm のメニューから「設定」→「シリアルポート」を選択する。
 2. 以下の通信設定を行う。
 
 | 設定項目 | 設定値 |
@@ -343,7 +343,7 @@ Raspberry Pi Zero W とシリアル通信を行うため、Tera Term の通信�
 | ストップビット | 1 bit |
 | フロー制御 | none |
 
-![Tera Termシリアルポート設定画面](../images/S2_TeraTermSerialSetting.png)
+![TeraTermシリアルポート設定画面](../images/S2_TeraTermSerialSetting.png)
 
 3. 設定内容を確認して「OK」を押下する。
 
@@ -357,9 +357,9 @@ Raspberry Pi Zero W とシリアル通信を行うため、Tera Term の通信�
 ```bash
 sudo shutdown -h now
 ```
-2. Tera Term がシリアルポートに接続されていることを確認する。
+2. TeraTerm がシリアルポートに接続されていることを確認する。
 3. Raspberry Pi Zero W の電源を ON にする。
-4. Tera Term の画面に起動メッセージが表示されることを確認する。
+4. TeraTerm の画面に起動メッセージが表示されることを確認する。
 5. ログインを求められた場合は、Raspberry Pi Imager で設定したユーザー名とパスワードを入力する。
 
 > 確認：Raspberry Pi Zero W の起動メッセージが表示され、ログイン後にコマンドを入力できれば成功。
