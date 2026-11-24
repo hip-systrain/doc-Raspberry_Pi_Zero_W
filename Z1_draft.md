@@ -4,7 +4,7 @@
 | ---- | ---- |
 | 対象ボード | Raspberry Pi Zero W |
 | 開発言語 | C / Python |
-| IDE・ツール | Tera Term 5.7.1 / Raspberry Pi Imager v2.0.12 / <br>OpenSSH_10 / GCC 14.2.0 / <br>GNU Make 4.4.1 / GDB 16.2 |
+| IDE・ツール | TeraTerm 5.7.1 / Raspberry Pi Imager v2.0.12 / <br>OpenSSH_10 / GCC 14.2.0 / <br>GNU Make 4.4.1 / GDB 16.2 |
 | SDK・ライブラリ | libgpiod 2.2.1 |
 | 開発PCのOS | Windows 11 26H2 |
 | 最終検証日 | 2026/11/20 |
@@ -128,8 +128,43 @@ Raspberry Pi Zero Wでは、Linuxを搭載した Raspberry Pi OS 上でプログ
 
 > 注意：Raspberry Pi Imager で設定したホスト名・ユーザー名・パスワードは、後で SSH 接続するときに使用するため、忘れないように控えておくこと。
 
+#### 1.1.2 Raspberry Pi OS の書き込み・初期設定
+1. Raspberry Pi Zero WのマイクロSDをPCに挿入する
+2. Raspberry Pi Imagerを起動する
+3. Deviceを設定する<br>
+Raspberry Pi Zeroを選択し、次へを押下する。<br>
+<img src="images/動確_1.1_RasPiOS(1).png" width="25%">
+4. OSを設定する<br>
+Raspberry Pi OS (32-bit)を選択し、次へを押下する。<br>
+<img src="images/動確_1.1_RasPiOS(2).png" width="25%">
+5. ストレージを設定する<br>
+表示されているストレージデバイスから選択し、次へを押下する。<br>
+**※ Exclude system drivesのチェックはつけておく。**<br>
+<img src="images/動確_1.1_RasPiOS(3).png" width="25%">
+6. hostnameを設定する<br>
+文字、数字、ハイフンのみで入力し、次へを押下する。<br>
+<img src="images/動確_1.1_RasPiOS(4).png" width="25%">
+7. Localisationを設定する<br>
+<img src="images/動確_1.1_RasPiOS(5).png" width="25%">
+8. usernameを設定する<br>
+小文字で、文字、数字、アンダースコア、ハイフンのみで入力、パスワードも入力を行い、次へを押下する。<br>
+<img src="images/動確_1.1_RasPiOS(6).png" width="25%">
+9. Wi-Fiを設定する<br>
+<img src="images/動確_1.1_RasPiOS(7).png" width="25%">
+10. SSH authenticationを設定する<br>
+<img src="images/動確_1.1_RasPiOS(8).png" width="25%">
+11. Raspberry Pi Connectを設定する<br>
+<img src="images/動確_1.1_RasPiOS(9).png" width="25%">
+12. Writeを押下し、書き込みを始める<br>
+<img src="images/動確_1.1_RasPiOS(10).png" width="25%">
+13. I UNDERSTAND, ERASE AND WRITEを押下する<br>
+書き込み時に、現在マイクロSDに書かれている内容を削除してから書き込むことを確認されているため、理解していることを伝える。<br>
+<img src="images/動確_1.1_RasPiOS(11).png" width="25%">
+14. 書き込みが終了したらFINISHを押下する<br>
+<img src="images/動確_1.1_RasPiOS(12).png" width="25%">
+15. マイクロSDカードを抜く
 
-#### 1.1.1 TeraTermのインストール
+#### 1.1.3 TeraTermのインストール
 本節では、PC とマイコンをシリアル通信で接続し、データの送受信や確認をするために使用する TeraTerm のインストール手順を記載する。
 1. 下記のリンクより、 TerTerm 公式 GitHub にアクセスする。  
 [TerTerm 公式 GitHub](https://github.com/TeraTermProject/teraterm/releases)
@@ -160,7 +195,7 @@ Raspberry Pi Zero Wでは、Linuxを搭載した Raspberry Pi OS 上でプログ
     >確認：TeraTerm セットアップウィザードの完了が表示されればインストール成功  
     ![インストール完了画面](../images/S1_TeraTermInstallOK.png)  
 
-#### 1.1.2 Windows OpenSSH の確認
+#### 1.1.4 Windows OpenSSH の確認
 
 Windows OpenSSH は、開発PCから Raspberry Pi Zero W に SSH 接続したり、ファイルを転送したりするために使用する。
 
@@ -177,7 +212,7 @@ ssh -V
 
 > 注意：コマンドが認識されない場合は、Windows のオプション機能から OpenSSH クライアントをインストールする。
 
-#### 1.1.3 Raspberry Pi 側の開発ツールの準備
+#### 1.1.5 Raspberry Pi 側の開発ツールの準備
 
 Raspberry Pi 上で C 言語のプログラムをビルド・デバッグするため、以下のツールを使用する。
 
@@ -188,7 +223,7 @@ Raspberry Pi 上で C 言語のプログラムをビルド・デバッグする�
 | GDB | プログラムのデバッグ |
 | libgpiod | GPIO の操作 |
 
-1. Tera Term を起動する。
+1. TeraTerm を起動する。
 2. Raspberry Pi Zero W に SSH 接続する。
 3. パッケージ情報を更新する。
 
@@ -234,14 +269,14 @@ ssh -V
 ```
 
 3. OpenSSH のバージョンが表示されることを確認する。
-4. Tera Term を起動できることを確認する。
+4. TeraTerm を起動できることを確認する。
 5. デバイスマネージャーで CH340E が認識されていることを確認する。
 
 > 確認：各ツールが起動でき、CH340E が認識されていれば成功。
 
 #### 1.3.2 Raspberry Pi 側の確認
 
-1. Tera Term を起動する。
+1. TeraTerm を起動する。
 2. Raspberry Pi Zero W に SSH 接続する。
 3. GCC のバージョンを確認する。
 
@@ -271,17 +306,17 @@ pkg-config --modversion libgpiod
 
 ## 2. シリアルターミナルの使い方
 
-本章では、CH340E USB シリアル変換モジュールを使用して、開発PCと Raspberry Pi Zero W をシリアル通信で接続し、Tera Term から操作する方法を説明する。
+本章では、CH340E USB シリアル変換モジュールを使用して、開発PCと Raspberry Pi Zero W をシリアル通信で接続し、TeraTerm から操作する方法を説明する。
 
 ### 2.1 使用するツールと接続方法
 
-本手順では、Tera Term と CH340E USB シリアル変換モジュールを使用して、Raspberry Pi Zero W と開発PCを接続する。
+本手順では、TeraTerm と CH340E USB シリアル変換モジュールを使用して、Raspberry Pi Zero W と開発PCを接続する。
 
 #### 2.1.1 使用するツール
 
 | ツール | 用途 |
 |---|---|
-| Tera Term | シリアル通信によるコマンド入力・出力確認 |
+| TeraTerm | シリアル通信によるコマンド入力・出力確認 |
 | CH340E USB シリアル変換モジュール | PCとRaspberry Pi間のシリアル通信 |
 | USBケーブル | CH340Eと開発PCの接続 |
 | ジャンパーワイヤー | CH340EとRaspberry Piの接続 |
@@ -308,22 +343,22 @@ pkg-config --modversion libgpiod
 
 > 注意：CH340E の信号は 5V、Raspberry Pi Zero W は 3.3V。CH340E の TXD を Raspberry Pi Zero W につなぐと、Raspberry Pi Zero W が壊れるおそれがある。
 
-#### 2.1.3 Tera Term の起動と接続
+#### 2.1.3 TeraTerm の起動と接続
 
-1. Tera Term を起動する。
+1. TeraTerm を起動する。
 2. 「新しい接続」画面で「シリアル」を選択する。
 3. 接続先として CH340E に割り当てられた COM ポートを選択する。
 4. 「OK」を押下する。
 
-![Tera Term新しい接続画面](../images/S2_TeraTermNewConnection.png)
+![TeraTerm新しい接続画面](../images/S2_TeraTermNewConnection.png)
 
-> 確認：Tera Term の画面が開き、選択した COM ポートに接続できれば成功。
+> 確認：TeraTerm の画面が開き、選択した COM ポートに接続できれば成功。
 
 ### 2.2 通信設定
 
-Raspberry Pi Zero W とシリアル通信を行うため、Tera Term の通信設定を行う。
+Raspberry Pi Zero W とシリアル通信を行うため、TeraTerm の通信設定を行う。
 
-1. Tera Term のメニューから「設定」→「シリアルポート」を選択する。
+1. TeraTerm のメニューから「設定」→「シリアルポート」を選択する。
 2. 以下の通信設定を行う。
 
 | 設定項目 | 設定値 |
@@ -335,7 +370,7 @@ Raspberry Pi Zero W とシリアル通信を行うため、Tera Term の通信�
 | ストップビット | 1 bit |
 | フロー制御 | none |
 
-![Tera Termシリアルポート設定画面](../images/S2_TeraTermSerialSetting.png)
+![TeraTermシリアルポート設定画面](../images/S2_TeraTermSerialSetting.png)
 
 3. 設定内容を確認して「OK」を押下する。
 
@@ -349,11 +384,12 @@ Raspberry Pi Zero W とシリアル通信を行うため、Tera Term の通信�
 ```bash
 sudo shutdown -h now
 ```
-2. Tera Term がシリアルポートに接続されていることを確認する。
+2. TeraTerm がシリアルポートに接続されていることを確認する。
 3. Raspberry Pi Zero W の電源を ON にする。
-4. Tera Term の画面に起動メッセージが表示されることを確認する。
+4. TeraTerm の画面に起動メッセージが表示されることを確認する。
 5. ログインを求められた場合は、Raspberry Pi Imager で設定したユーザー名とパスワードを入力する。
 
 > 確認：Raspberry Pi Zero W の起動メッセージが表示され、ログイン後にコマンドを入力できれば成功。
 
 > 注意：パスワード入力中は、入力した文字が画面に表示されない。
+
