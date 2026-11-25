@@ -110,7 +110,7 @@ Raspberry Pi Zero Wでは、Linuxを搭載した Raspberry Pi OS 上でプログ
 
 2. Windows 用の Raspberry Pi Imager をダウンロードする。
 
-![Raspberry Pi Imager ダウンロード画面](../images/z1_RaspberryPiImagerDownload.png)
+![Raspberry Pi Imager ダウンロード画面](images/z1_RaspberryPiImagerDownload.png)
 
 3. ダウンロードしたインストーラーをダブルクリックする。
 
@@ -118,11 +118,11 @@ Raspberry Pi Zero Wでは、Linuxを搭載した Raspberry Pi OS 上でプログ
 
 5. インストール画面が表示されたら、画面の指示に従ってインストールする。
 
-![Raspberry Pi Imager インストール画面](../images/z1_RaspberryPiImagerInstall.png)
+![Raspberry Pi Imager インストール画面](images/z1_RaspberryPiImagerInstall.png)
 
 6. インストール完了後、スタートメニューから Raspberry Pi Imager を起動する。
 
-![Raspberry Pi Imager 起動画面](../images/z1_RaspberryPiImagerStart.png)
+![Raspberry Pi Imager 起動画面](images/z1_RaspberryPiImagerStart.png)
 
 > 確認：Raspberry Pi Imager のメイン画面が表示されればインストール成功。
 
@@ -169,31 +169,31 @@ Raspberry Pi OS (32-bit)を選択し、次へを押下する。<br>
 1. 下記のリンクより、 TerTerm 公式 GitHub にアクセスする。  
 [TerTerm 公式 GitHub](https://github.com/TeraTermProject/teraterm/releases)
 1. TeraTerm 5.7.1の Assets から **teraterm-5.7.1-x64.exe** をダウンロードする。  
-![TeraTermダウンロード画面](../images/S1_TeraTermDownLoad.png)  
+![TeraTermダウンロード画面](images/S1_TeraTermDownLoad.png)  
 1. ダウンロードした**teraterm-5.7.1-x64.exe** をダブルクリックする。
-![TeraTermダウンロード選択画面](../images/S1_TeraTermDownLoadSelect.png)  
+![TeraTermダウンロード選択画面](images/S1_TeraTermDownLoadSelect.png)  
 1. 「インストールモードの選択」画面が開かれ、**現在のユーザー用にインストール(M)(推奨)** を押下する。  
-![インストールモードの選択画面](../images/S1_TeraTermInstallMode.png)  
+![インストールモードの選択画面](images/S1_TeraTermInstallMode.png)  
 1. 「セットアップに使用する言語の選択」画面が開かれ、インストール中に利用する言語を**日本語**を選択する。
-![セットアップ言語選択画面](../images/S1_SetupLanguageSelect.png)  
+![セットアップ言語選択画面](images/S1_SetupLanguageSelect.png)  
 1. 「使用許諾契約書の同意」画面が開かれ、同意する(A)を押下する。  
-![使用許諾契約書画面](../images/S1_TeraTermLicense.png)  
+![使用許諾契約書画面](images/S1_TeraTermLicense.png)  
 1. 次へ(N)を押下する。  
-![使用許諾契約書次へ画面](../images/S1_TeraTermLicenseNext.png)    
+![使用許諾契約書次へ画面](images/S1_TeraTermLicenseNext.png)    
 1. 「インストール先の指定」画面が開かれ、次へ(N)を押下する。  
-![インストール先指定画面](../images/S1_TeraTermInstallLocate.png)  
+![インストール先指定画面](images/S1_TeraTermInstallLocate.png)  
 1. 「コンポーネントの選択」画面が開かれ、次へ(N)を押下する。  
-![コンポーネントの選択画面](../images/S1_TeraTermComponent.png)  
+![コンポーネントの選択画面](images/S1_TeraTermComponent.png)  
 1. 「言語の選択」画面が開かれ、日本語(J)を押下する。  
-![言語の選択画面](../images/S1_TeraTermLangugae.png)  
+![言語の選択画面](images/S1_TeraTermLangugae.png)  
 1. 「スタートメニューフォルダーの指定」画面が開かれ、次へ(N)を押下する。  
-![スタートメニューフォルダーの指定画面](../images/S1_TeraTermStartMenu.png)  
+![スタートメニューフォルダーの指定画面](images/S1_TeraTermStartMenu.png)  
 1. 「追加タスクの選択」画面が開かれ、次へ(N)を押下する。  
-![追加タスクの選択画面](../images/S1_TeraTermAddTask.png)  
+![追加タスクの選択画面](images/S1_TeraTermAddTask.png)  
 1. 「インストールの準備完了」画面が開かれ、インストール(I)を押下する。  
-![インストール準備完了](../images/S1_TeraTermSetupOK.png)  
+![インストール準備完了](images/S1_TeraTermSetupOK.png)  
     >確認：TeraTerm セットアップウィザードの完了が表示されればインストール成功  
-    ![インストール完了画面](../images/S1_TeraTermInstallOK.png)  
+    ![インストール完了画面](images/S1_TeraTermInstallOK.png)  
 
 #### 1.1.4 Windows OpenSSH の確認
 
@@ -364,7 +364,7 @@ pkg-config --modversion libgpiod
 
 <!--※Raspberry Pi Zero W へのログインに必要なためTXDも接続する-->
 
-![Raspberry Pi Zero WとCH340Eの接続図](../images/S2_SerialConnection.png)
+![Raspberry Pi Zero WとCH340Eの接続図](images/S2_SerialConnection.png)
 
 3. CH340E USB シリアル変換モジュールを USB ケーブルで開発PCに接続する。
 4. Raspberry Pi Zero W の電源を ON にする。
@@ -380,7 +380,7 @@ pkg-config --modversion libgpiod
 3. 接続先として CH340E に割り当てられた COM ポートを選択する。
 4. 「OK」を押下する。
 
-![TeraTerm新しい接続画面](../images/S2_TeraTermNewConnection.png)
+![TeraTerm新しい接続画面](images/S2_TeraTermNewConnection.png)
 
 > 確認：TeraTerm の画面が開き、選択した COM ポートに接続できれば成功。
 
@@ -400,7 +400,7 @@ Raspberry Pi Zero W とシリアル通信を行うため、TeraTerm の通信設
 | ストップビット | 1 bit |
 | フロー制御 | none |
 
-![TeraTermシリアルポート設定画面](../images/S2_TeraTermSerialSetting.png)
+![TeraTermシリアルポート設定画面](images/S2_TeraTermSerialSetting.png)
 
 3. 設定内容を確認して「OK」を押下する。
 
