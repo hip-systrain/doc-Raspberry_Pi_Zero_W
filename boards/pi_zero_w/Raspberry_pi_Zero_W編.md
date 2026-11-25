@@ -114,13 +114,11 @@ Raspberry Pi Zero Wでは、Linuxを搭載した Raspberry Pi OS 上でプログ
 
 3. ダウンロードしたインストーラーをダブルクリックする。
 
-4. ユーザーアカウント制御の画面が表示された場合は、内容を確認してインストールを許可する。
-
-5. インストール画面が表示されたら、画面の指示に従ってインストールする。
+4. インストール画面が表示されたら、画面の指示に従ってインストールする。
 
 ![Raspberry Pi Imager インストール画面](images/z1_RaspberryPiImagerInstall.png)
 
-6. インストール完了後、スタートメニューから Raspberry Pi Imager を起動する。
+5. インストール完了後、スタートメニューから Raspberry Pi Imager を起動する。
 
 ![Raspberry Pi Imager 起動画面](images/z1_RaspberryPiImagerStart.png)
 
@@ -208,7 +206,8 @@ ssh -V
 
 3. OpenSSH のバージョンが表示されることを確認する。
 
-> 確認：OpenSSH のバージョンが表示されれば成功。
+> 確認：OpenSSH のバージョンが表示されれば成功。<br>
+![ssh -V確認](images/z1_check_ssh-V.png) 
 
 #### 1.1.5 Raspberry Pi 側の開発ツールの準備
 
@@ -236,6 +235,7 @@ sudo apt install -y build-essential
 ```
 
 > 確認：インストールが完了し、エラーが表示されなければ成功。
+![エラーがないことの確認](images/z1_sudoaptinstall-ybuild-essential.png) 
 
 #### 1.1.6 WinSCP のインストール
 
@@ -260,11 +260,12 @@ sudo apt install -y build-essential
 
 6. インストール画面が表示されたら、画面の指示に従ってインストールする。
 > 確認：インターフェーススタイルはコマンダーを選択すること。<br>
-<img src="images\z1_winSCPコマンダー形式.png" width="25%">
+![コマンダーを選択](images\z1_winSCPコマンダー形式.png) 
 
 7. インストール完了後、スタートメニューから WinSCP を起動する。
 
-> 確認：WinSCP のログイン画面が表示されればインストール成功。
+> 確認：WinSCP のログイン画面が表示されればインストール成功。<br>
+![WinSCP のログイン画面](images\z1_WinSCP_login.png)
 
 > 注意：研修環境の共有フォルダにあるインストーラーは、直接実行せず、開発 PC のローカルフォルダにコピーしてから使用すること。
 
@@ -282,7 +283,8 @@ sudo apt install -y build-essential
 6. 画面の指示に従ってインストールする。
 7. 必要に応じて USB シリアル変換モジュールを接続し直す。
 
-> 確認：「ポート（COM と LPT）」に USB-SERIAL CH340 などの機器が表示されれば成功。
+> 確認：「ポート（COM と LPT）」に USB-SERIAL CH340 などの機器が表示されれば成功。<br>
+![デバイスマネージャーの確認](images\z1_check_USBport.png)
 
 > 注意：ドライバの名称や表示内容は、ドライバのバージョンによって異なる場合がある。
 
@@ -303,7 +305,8 @@ ssh -V
 4. TeraTerm を起動できることを確認する。
 5. デバイスマネージャーで CH340E が認識されていることを確認する。
 
-> 確認：各ツールが起動でき、CH340E が認識されていれば成功。
+> 確認：各ツールが起動でき、CH340E が認識されていれば成功。<br>
+![デバイスマネージャーの確認](images\z1_check_USBport.png)
 
 #### 1.3.2 Raspberry Pi 側の確認
 
