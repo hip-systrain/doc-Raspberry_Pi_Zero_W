@@ -4,7 +4,7 @@
 | ---- | ---- |
 | 対象ボード | Raspberry Pi Zero W |
 | 開発言語 | C / Python |
-| IDE・ツール | TeraTerm 5.7.1 / Raspberry Pi Imager v2.0.12 / <br>OpenSSH_10 / GCC 14.2.0 / <br>GNU Make 4.4.1 / GDB 16.2 |
+| IDE・ツール | TeraTerm 5.7.1 / Raspberry Pi Imager v2.0.12 / <br>OpenSSH_10 / GCC 14.2.0 / <br>GNU Make 4.4.1 / GDB 16.2 / <br>WinSCP-6.5.5 |
 | SDK・ライブラリ | libgpiod 2.2.1 |
 | 開発PCのOS | Windows 11 26H2 |
 | 最終検証日 | 2026/11/24 |
@@ -259,7 +259,7 @@ sudo apt install -y build-essential
 5. コピーした `WinSCP-6.5.5-Setup.exe` をダブルクリックする。
 
 6. インストール画面が表示されたら、画面の指示に従ってインストールする。
-> 注意：インターフェーススタイルはコマンダーを選択すること。
+> 確認：インターフェーススタイルはコマンダーを選択すること。
 
 7. インストール完了後、スタートメニューから WinSCP を起動する。
 
