@@ -336,7 +336,8 @@ gdb --version
 pkg-config --modversion libgpiod
 ```
 
-> 確認：各ツールのバージョンが表示されれば成功。
+> 確認：各ツールのバージョンが表示されれば成功。<br>
+![各ツールのバージョン確認](images\z1_checkToolVer.png)
 
 ## 2. シリアルターミナルの使い方
 
