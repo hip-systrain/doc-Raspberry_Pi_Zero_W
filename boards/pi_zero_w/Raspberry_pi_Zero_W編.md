@@ -163,7 +163,8 @@ Raspberry Pi OS (32-bit)を選択し、次へを押下する。<br>
 15. マイクロSDカードを抜く。
 
 #### 1.1.3 TeraTermのインストール
-本節では、PC とマイコンをシリアル通信で接続し、データの送受信や確認をするために使用する TeraTerm のインストール手順を記載する。
+本節では、PC とマイコンをシリアル通信で接続し、データの送受信や確認をするために使用する TeraTerm のインストール手順を記載する。<br>
+なお、Tera TermがPCにインストールされていない場合のみ、本節の手順を実施すること。  
 1. 下記のリンクより、 TerTerm 公式 GitHub にアクセスする。  
 [TerTerm 公式 GitHub](https://github.com/TeraTermProject/teraterm/releases)
 1. TeraTerm 5.7.1の Assets から **teraterm-5.7.1-x64.exe** をダウンロードする。  
