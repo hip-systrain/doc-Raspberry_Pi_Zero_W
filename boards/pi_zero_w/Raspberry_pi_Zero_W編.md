@@ -51,7 +51,8 @@ pthreadでは、主に次の関数を使用する。
 #### pthreadを使用したプログラムの作成
 
 pthreadを使用するには、`pthread.h`をインクルードする。
-
+<details>
+<summary>テストコード</summary>  
 ```c
 #include <stdio.h>
 #include <pthread.h>
@@ -79,6 +80,7 @@ int main(void)
     return 0;
 }
 ```
+</details>
 
 このプログラムでは、`pthread_create()`で新しいスレッドを作成し、`thread_func()`を実行する。
 
@@ -117,6 +119,8 @@ gcc -g -pthread -o test test.c　-lgpiod
 
 メインスレッドで2つのスレッドを作成し、それぞれの処理を並行して実行する。
 
+<details>
+<summary>テストコード</summary> 
 ```C
 #include <stdio.h>
 #include <pthread.h>
@@ -421,6 +425,7 @@ int main(void)
 }
 
 ```
+</details>
 
 #### 処理の流れ
 
@@ -832,6 +837,7 @@ int main(void)
     return 0;
 }
 ```
+</details>
 
 #### スレッド間のデータ共有
 
