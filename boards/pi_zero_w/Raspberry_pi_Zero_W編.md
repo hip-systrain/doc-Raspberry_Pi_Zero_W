@@ -370,7 +370,7 @@ pkg-config --modversion libgpiod
 3. 接続先として CH340E に割り当てられた COM ポートを選択する。
 4. 「OK」を押下する。
 
-![TeraTerm新しい接続画面](images/S2_TeraTermNewConnection.png)
+![TeraTerm新しい接続画面](images/z1_TeraTermNewConnection.png)
 
 > 確認：TeraTerm の画面が開き、選択した COM ポートに接続できれば成功。
 
