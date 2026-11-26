@@ -355,14 +355,15 @@ pkg-config --modversion libgpiod
 | GND      | GND                   | 6            | 接続     |
 | TXD      | GPIO15（TXD）         | 10           | 非接続     |
 
+
+> 注意：CH340E の信号は 5V、Raspberry Pi Zero W は 3.3V。CH340E の TXD を Raspberry Pi Zero W につなぐと、Raspberry Pi Zero W が壊れるおそれがあるため接続しない。
+
 ![Raspberry Pi Zero WとCH340Eの接続図](images/z1_SerialConnection.png)
 
 3. CH340E USB シリアル変換モジュールを USB ケーブルで開発PCに接続する。
 4. Raspberry Pi Zero W の電源を ON にする。
 
 > 確認：CH340E が開発PCに接続され、Raspberry Pi Zero W の電源が ON になっていれば成功。
-
-> 注意：CH340E の信号は 5V、Raspberry Pi Zero W は 3.3V。CH340E の TXD を Raspberry Pi Zero W につなぐと、Raspberry Pi Zero W が壊れるおそれがある。
 
 #### 2.1.3 TeraTerm の起動と接続
 
