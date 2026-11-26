@@ -19,7 +19,7 @@ Raspberry Pi OSにはあらかじめPythonがインストールされており�
 python --version
 ```
 
-![pythonバージョン確認](image/python_version.png)
+![pythonバージョン確認](images/python_version.png)
 > 確認: 上記実行結果のようにPython <バージョン> と表示されていれば、問題なし。
 
 #### 外部ライブラリのインストール
@@ -31,7 +31,7 @@ python --version
 sudo apt install -y python3-gpiozero python3-serial
 ```
 
-![ライブラリインストール](image/library.png)
+![ライブラリインストール](imagess/library.png)
 > 確認: 上記実行結果のようにエラーが表示されず、実行結果が表示されていれば、問題なし。
 
 ### 10.2.0 Pythonでの実装と実行
@@ -76,7 +76,7 @@ finally:
 ```
 
 - **④実行:**
-![No1_転送](image/no1_tensou.png)
+![No1_転送](images/no1_tensou.png)
 
 WinSCP上でソースコードをRaspberry Pi上の任意のディレクトリに転送し、Raspberry Pi上のディレクトリで実行。
 
@@ -85,7 +85,7 @@ python no1.py
 ```
 
 - **⑤動作確認:**
-![題材1_動作結果](image/no1_result.png)
+![題材1_動作結果](images/no1_result.png)
 
 ### 10.2.2. 題材2:白スイッチを押している間だけ赤LEDを点灯
 
@@ -140,7 +140,7 @@ python no2.py
 ```
 
 - **⑤動作確認:**
-![題材2_動作結果](image/no2_result.png)
+![題材2_動作結果](images/no2_result.png)
 
 > 確認: 白スイッチを押すとRaspberry Pi基盤上の赤LEDが点灯し、CLI上に"LED点灯"と出力されることを確認する。
 
@@ -212,7 +212,7 @@ python no3.py
 
 - **⑤動作確認:**
 
-![題材3_動作結果](image/no3_result.png)
+![題材3_動作結果](images/no3_result.png)
 
 > 確認: 白スイッチを押すと、CLI上に"ボタン押下検知"と出力されることを確認する。シリアル通信のCLI上に押下回数が出力されることを確認する。
 
@@ -274,7 +274,7 @@ python no4.py
 
 - **⑤動作確認:**
 
-![題材4_動作結果](image/no4_result.png)
+![題材4_動作結果](images/no4_result.png)
 
 > 確認: 一定周期で赤LEDが点灯できていることを確認する。
 
@@ -347,7 +347,7 @@ python no5.py
 
 - **⑤動作確認:**
 
-![題材5_動作結果](image/no5_result.png)
+![題材5_動作結果](images/no5_result.png)
 
 > 確認: 一定周期で赤LEDが点滅できていることを確認する。
 
@@ -432,7 +432,7 @@ python no6.py
 
 - **⑤動作確認:**
 
-![題材6_動作結果](image/no6_result.png)
+![題材6_動作結果](images/no6_result.png)
 
 > 確認: 白スイッチを押すとLEDの点灯間隔が変わることを確認する。
 > CLI上に"ボタン押下検知 点灯間隔:x秒と"出力されることを確認する
