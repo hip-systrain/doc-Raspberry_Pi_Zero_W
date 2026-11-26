@@ -230,14 +230,14 @@ python no3.py
 
 > 確認: 白スイッチを押すと、CLI上に"ボタン押下検知"と出力されることを確認する。シリアル通信のCLI上に押下回数が出力されることを確認する。
 
-<details>
-    <summary>no4.py</summary>
-
 ### 10.2.4. 題材4:一定の周期で赤LEDを点滅
 
 - **①作るもの:** 一定の周期で赤LEDを点滅
 - **②配線:** LED1(赤) = 17
 - **③プログラム:** 使うライブラリ gpiozero, pyserial
+
+<details>
+    <summary>no4.py</summary>
 
 ```py
 # no4.py
