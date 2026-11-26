@@ -31,7 +31,7 @@ python --version
 sudo apt install -y python3-gpiozero python3-serial
 ```
 
-![ライブラリインストール](imagess/library.png)
+![ライブラリインストール](images/library.png)
 > 確認: 上記実行結果のようにエラーが表示されず、実行結果が表示されていれば、問題なし。
 
 ### 10.2.0 Pythonでの実装と実行
