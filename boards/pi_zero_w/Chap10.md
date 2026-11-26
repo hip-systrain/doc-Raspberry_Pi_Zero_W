@@ -52,7 +52,7 @@ C言語で作成したプログラム同様、Windows上でプログラムを作
 
 - **①作るもの:** 赤LEDを0.5秒間隔で点滅させる。
 - **②配線:** LED1(赤) = BCM 17
-- **③プログラム:**
+- **③プログラム:** 使うライブラリ gpiozero
 
 <details>
     <summary>no1.py</summary>
@@ -77,7 +77,7 @@ try:
 finally:
    r_led.close()
 ```
-</datails>
+</details>
 
 - **④実行:**
 ![No1_転送](images/no1_tensou.png)
@@ -95,10 +95,10 @@ python no1.py
 
 - **①作るもの:** 白スイッチを押している間だけ赤LEDを点灯
 - **②配線:** LED1(赤) = BCM 17, SW1(白スイッチ) = 24
-- **③プログラム:**
+- **③プログラム:** 使うライブラリ gpiozero
 
 <details>
-    <summary>no1.py</summary>
+    <summary>no2.py</summary>
 
 ```py
 # no2.py
@@ -157,7 +157,10 @@ python no2.py
 
 - **①作るもの:** 白スイッチを押した回数をパソコンに表示する
 - **②配線:** LED1(赤) = SW1(白スイッチ) = 24
-- **③プログラム:**
+- **③プログラム:** 使うライブラリ gpiozero
+
+<details>
+    <summary>no3.py</summary>
 
 ```py
 # no3.py
@@ -213,6 +216,8 @@ if __name__ == '__main__':
     main(count)
 ```
 
+</details>
+
 - **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
 
 ```bash
@@ -225,11 +230,14 @@ python no3.py
 
 > 確認: 白スイッチを押すと、CLI上に"ボタン押下検知"と出力されることを確認する。シリアル通信のCLI上に押下回数が出力されることを確認する。
 
+<details>
+    <summary>no4.py</summary>
+
 ### 10.2.4. 題材4:一定の周期で赤LEDを点滅
 
 - **①作るもの:** 一定の周期で赤LEDを点滅
 - **②配線:** LED1(赤) = 17
-- **③プログラム:**
+- **③プログラム:** 使うライブラリ gpiozero
 
 ```py
 # no4.py
@@ -275,6 +283,8 @@ if __name__ == '__main__':
     main()
 ```
 
+</details>
+
 - **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
 
 ```bash
@@ -288,6 +298,13 @@ python no4.py
 > 確認: 一定周期で赤LEDが点灯できていることを確認する。
 
 ### 10.2.5. 題材5:LEDとスイッチを別々のスレッドで動かす
+
+- **①作るもの:** LEDとスイッチを別々のスレッドで動かす
+- **②配線:** LED1(赤) = 17, スイッチ1(SW1) = 24
+- **③プログラム:** 使うライブラリ gpiozero, pthread
+
+<details>
+    <summary>no5.py</summary>
 
 ```py
 # no5.py
@@ -348,6 +365,8 @@ if __name__ == '__main__':
     main()
 ```
 
+</details>
+
 - **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
 
 ```bash
@@ -361,6 +380,13 @@ python no5.py
 > 確認: 一定周期で赤LEDが点滅できていることを確認する。
 
 ### 10.2.6. 題材6:白スイッチでLEDの点滅の速さを切り替える
+
+- **①作るもの:** 白スイッチでLEDの点滅の速さを切り替える
+- **②配線:** LED1(赤) = 17, スイッチ1(SW1) = 24
+- **③プログラム:** 使うライブラリ gpiozero, pthread
+
+<details>
+    <summary>no6.py</summary>
 
 ```py
 from gpiozero import LED, Button
@@ -432,6 +458,8 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+
+</details>
 
 - **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
 
