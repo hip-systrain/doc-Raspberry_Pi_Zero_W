@@ -271,7 +271,7 @@ sudo apt install -y build-essential
 7. 必要に応じて USB シリアル変換モジュールを接続し直す。
 
 > 確認：「ポート（COM と LPT）」に USB-SERIAL CH340 などの機器が表示されれば成功。<br>
-![デバイスマネージャーの確認](images\z1_check_USBport.png)
+![デバイスマネージャーの確認](images/z1_check_USBport.png)
 
 > 注意：ドライバの名称や表示内容は、ドライバのバージョンによって異なる場合がある。
 
