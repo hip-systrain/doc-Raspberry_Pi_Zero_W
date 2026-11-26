@@ -241,35 +241,22 @@ sudo apt install -y build-essential
 
 本節では、開発 PC と Raspberry Pi Zero W の間でファイルを転送するために使用する WinSCP のインストール手順を記載する。
 
-1. エクスプローラーを起動する。
-
-2. アドレスバーに以下のパスを入力し、研修環境の共有フォルダにアクセスする。
-
-   ```text
-   Y:\Application\
-   ```
-> 注意：wi-fiはhip-systrainに接続していること。
-
-3. `WinSCP-6.5.5-Setup.exe` を選択する。
-
-4. インストーラーを開発 PC のローカルフォルダにコピーする。
-
-   例：ダウンロードフォルダ
-
-5. コピーした `WinSCP-6.5.5-Setup.exe` をダブルクリックする。
-
-6. インストール画面が表示されたら、画面の指示に従ってインストールする。
-> 確認：インターフェーススタイルはコマンダーを選択すること。<br>
-![コマンダーを選択](images\z1_winSCPコマンダー形式.png) 
-
-7. インストール完了後、スタートメニューから WinSCP を起動する。
-
-> 確認：WinSCP のログイン画面が表示されればインストール成功。<br>
-![WinSCP のログイン画面](images\z1_WinSCP_login.png)
-
-> 注意：研修環境の共有フォルダにあるインストーラーは、直接実行せず、開発 PC のローカルフォルダにコピーしてから使用すること。
-
-> 注意：WinSCP で Raspberry Pi Zero W に接続する際は、SSH 接続に使用するホスト名、IP アドレス、ユーザー名、パスワードを使用すること。
+1. 下記のリンクより、 WinSCP 公式にアクセスする。<br>
+[WinSCP 公式](https://winscp.net/download/WinSCP-6.5.5-Setup.exe/download?utm_source=chatgpt.com)
+2. WinSCP-6.5.5-Setup.exe をダウンロードする。
+![WinSCPダウンロード画面](../images/z1_WinScpDownload.png)  
+3. ダウンロードした WinSCP-6.5.5-Setup.exe  をダブルクリックする。
+![WinSCPダウンロード選択画面](../images/z1_WinScpDownLoadSelect.png)  
+4. 「使用許諾契約書の同意」画面が開かれ、許諾(A)を押下する。
+![使用許諾契約書画面](../images/z1_WinScpLicense.png)  
+5. 「セットアップ形式」画面が開かれ、次へ(N)を押下する。
+![セットアップ形式画面](../images/z1_WinScpSetupStlye.png)  
+> 確認：インターフェーススタイルはコマンダーを選択すること。
+6. 「インストール準備完了」画面が開かれ、インストール(I)を押下する。
+![インストール準備完了画面](../images/z1_WinScpSetupOk.png)  
+> 確認：WinSCP セットアップウィザードの完了が表示されればインストール成功。
+![インストール完了画面](../images/z1_WinScpInstallOk.png)  
+> 確認：注意：WinSCP で Raspberry Pi Zero W に接続する際は、SSH 接続に使用するホスト名、IP アドレス、ユーザー名、パスワードを使用すること。
 
 ### 1.2 ドライバのインストール
 
