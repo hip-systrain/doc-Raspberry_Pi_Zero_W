@@ -293,7 +293,7 @@ ssh -V
 5. デバイスマネージャーで CH340E が認識されていることを確認する。
 
 > 確認：各ツールが起動でき、CH340E が認識されていれば成功。<br>
-![デバイスマネージャーの確認](images\z1_check_USBport.png)
+![デバイスマネージャーの確認](images/z1_check_USBport.png)
 
 #### 1.3.2 Raspberry Pi 側の確認
 
@@ -324,7 +324,7 @@ pkg-config --modversion libgpiod
 ```
 
 > 確認：各ツールのバージョンが表示されれば成功。<br>
-![各ツールのバージョン確認](images\z1_checkToolVer.png)
+![各ツールのバージョン確認](images/z1_checkToolVer.png)
 
 ## 2. シリアルターミナルの使い方
 
