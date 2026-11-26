@@ -1,54 +1,63 @@
+# ドラフト版
+
 ## 10.Python編【追加章】
-### 10.0. はじめに
-なぜPythonを使うのかメリットを書く
+
+### 10.0. はじめに なぜPythonを使うのか
+
+この章では、Pythonを使用してこれまでの課題で与えられたことを再度実装することで、C言語とPythonの違いを体験してもらう。
+Raspberry Pi OSにはあらかじめPythonがインストールされており、コンパイル(ビルド)を行わずに実行できるため、ハードウェア制御の動作検証を素早く実施できる。
+
 ### 10.1. 準備
-ここでは、本課題を達成するのに必要なPythonの環境構築を行う。
-#### 10.1.1. Pythonをインストールする。
-前提条件として下記コマンドを実行し、バージョンが出力されていた場合は実施する必要がない。
+
+ここでは、本課題を達成するのに必要なPythonの環境確認と外部ライブラリの導入を行う。
+
+#### 10.1.1. Pythonと外部ライブラリの確認・インストール
+
+前提条件として下記コマンドを実行し、想定しているバージョン`Python 3.13.x`が出力されていることを確認する。
+
 ```bash
 python --version
 Python 3.13.5
 ```
-下記コマンドを実行し、aptを更新する。
-```bash
-sudo apt update
-```
-sudo(管理者権限)でコマンドを実行する為、自分のユーザーのパスワードを入力し、エンターを押す。
-```bash
-[sudo] password for <usr>:
-```
-下記ログが出力されることを確認すること
-```bash
-142 packages can be upgraded. Run 'apt list --upgradable' to see them.
-```
-下記コマンドを実行
-```bash
-sudo apt install -y python3 python3-pip python3-venv
-```
-```bash
-python3 is already the newest version (3.13.5-1).
-python3 set to manually installed.
-python3-pip is already the newest version (25.1.1+dfsg-1+rpt1).
-python3-pip set to manually installed.
-python3-venv is already the newest version (3.13.5-1).
-Summary:
-  Upgrading: 0, Installing: 0, Removing: 0, Not Upgrading: 142
-```
-外部ライブラリのインストール
-・gpiozero:
-・serial:Pythonでシリアル通信を行うのに必要
+
+> 確認: 上記実行結果のようにPython <バージョン> と表示されていれば、問題なし。
+
+#### 外部ライブラリのインストール
+
+**・gpiozero**:Raspberry Pi上のGPIO(I/Oポート)を制御する為に必要なライブラリ
+**・serial**:Pythonでシリアル通信を行うのに必要なライブラリ
+
 ```bash
 sudo apt install -y python3-gpiozero python3-serial
-
 python3-gpiozero is already the newest version (2.0.1-0+rpt1+trixie).
 python3-serial is already the newest version (3.5-2).
 python3-serial set to manually installed.
 Summary:
   Upgrading: 0, Installing: 0, Removing: 0, Not Upgrading: 142
 ```
-確認できたら完了。
+
+> 確認: 上記実行結果のようにエラーが表示されず、実行結果が表示されていれば、問題なし。
+
+### 10.2.0 Pythonでの実装と実行
+
+ここでは、第4,9章でC言語を使用して書かれたプログラムをPythonで書くことになっている。
+お題は下記の通りとなっている。
+
+- **題材1:** 赤LEDを0.5秒ごとに点滅
+- **題材2:** 白スイッチを押している間だけ赤LEDを点灯
+- **題材3:** 白スイッチを押した回数をパソコンに表示
+- **題材4:** LEDとスイッチを別々のスレッドで動かす
+- **題材5:** LEDとスイッチを別々のスレッドで動かす
+- **題材6:** 白スイッチでLEDの点滅の速さを切り替える
+
+C言語で作成したプログラム同様、Windows上でプログラムを作成し、SCP(WinSCP)を使用してRaspberry Pi上へ転送。 Raspberry Pi OS上でプログラムを実行する流れとなっている。
 
 ### 10.2.1. 題材1:赤LEDを0.5秒ごとに点滅
+
+- **①作るもの:** 赤LEDを0.5秒間隔で点滅させる。
+- **②配線:** LED1(赤) = BCM 17
+- **③プログラム:**
+
 ```py
 # no1.py
 import time
@@ -69,7 +78,25 @@ try:
 finally:
    r_led.close()
 ```
+
+- **④実行:**
+![No1_転送](image/no1_tensou.png)
+
+WinSCP上でソースコードをRaspberry Pi上の任意のディレクトリに転送し、Raspberry Pi上のディレクトリで実行。
+
+```bash
+python no1.py
+```
+
+- **⑤動作確認:**
+![題材1_動作結果](image/no1_result.png)
+
 ### 10.2.2. 題材2:白スイッチを押している間だけ赤LEDを点灯
+
+- **①作るもの:** 白スイッチを押している間だけ赤LEDを点灯
+- **②配線:** LED1(赤) = BCM 17, SW1(白スイッチ) = 24
+- **③プログラム:**
+
 ```py
 # no2.py
 # coding: UTF-8
@@ -89,11 +116,16 @@ button = Button(SW1, pull_up=False)
 try:
     print("SW1を押す:LED1(赤)点灯\nCtrl+C:プログラム終了 ")
     while True:
-        if button.is_pressed:         
+        current_state = button.is_pressed
+        if current_state:
             led.on()
+            if not last_state:
+                print("LED点灯")
         else:
-            led.off()   
-        time.sleep(SLEEP_TIME)    
+            led.off()
+
+        last_state = current_state
+        time.sleep(SLEEP_TIME)
 
 except KeyboardInterrupt:
     print("\n動作を終了します。")
@@ -104,7 +136,24 @@ finally:
     button.close()
     sys.exit()
 ```
+
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+
+```bash
+python no2.py
+```
+
+- **⑤動作確認:**
+![題材2_動作結果](image/no2_result.png)
+
+> 確認: 白スイッチを押すとRaspberry Pi基盤上の赤LEDが点灯し、CLI上に"LED点灯"と出力されることを確認する。
+
 ### 10.2.3. 題材3:白スイッチを押した回数をパソコンに表示
+
+- **①作るもの:** 白スイッチを押した回数をパソコンに表示する
+- **②配線:** LED1(赤) = SW1(白スイッチ) = 24
+- **③プログラム:**
+
 ```py
 # no3.py
 import serial
@@ -158,7 +207,25 @@ def main(count):
 if __name__ == '__main__':
     main(count)
 ```
+
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+
+```bash
+python no3.py
+```
+
+- **⑤動作確認:**
+
+![題材3_動作結果](image/no3_result.png)
+
+> 確認: 白スイッチを押すと、CLI上に"Trigger SW Detected!"と出力されることを確認する。
+
 ### 10.2.4. 題材4:一定の周期で赤LEDを点滅
+
+- **①作るもの:** 一定の周期で赤LEDを点滅
+- **②配線:** LED1(赤) = 17
+- **③プログラム:**
+
 ```py
 # no4.py
 # coding: UTF-8
@@ -202,7 +269,21 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+
+```bash
+python no4.py
+```
+
+- **⑤動作確認:**
+
+![題材4_動作結果](image/no4_result.png)
+
+> 確認: 一定周期で赤LEDが点灯できていることを確認する。
+
 ### 10.2.5. 題材5:LEDとスイッチを別々のスレッドで動かす
+
 ```py
 # no5.py
 from gpiozero import LED, Button
@@ -261,7 +342,21 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+
+```bash
+python no5.py
+```
+
+- **⑤動作確認:**
+
+![題材5_動作結果](image/no5_result.png)
+
+> 確認: 一定周期で赤LEDが点滅できていることを確認する。
+
 ### 10.2.6. 題材6:白スイッチでLEDの点滅の速さを切り替える
+
 ```py
 from gpiozero import LED, Button
 import threading
@@ -332,16 +427,32 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+
+```bash
+python no6.py
+```
+
+- **⑤動作確認:**
+
+![題材6_動作結果](image/no6_result.png)
+
+> 確認: 白スイッチを押すとLEDの点灯間隔が変わることを確認する。
+> CLI上に"ボタン押下検知 点灯間隔:x秒と"出力されることを確認する
+
 ### 10.3.0. 所感
-・CとPythonを比較した感想を書く。
-Pythonはデバッグを行わずに、そのまま実行できるのが利点。
+
+Pythonはビルドを行わずに、そのまま実行できるのが利点。
+Raspberry PiはOSにPythonが含まれているので、環境構築について気を遣う必要がない。
 
 ### 参考文献
+
 Raspberry PiのセットアップからPython環境のインストールまで
-https://qiita.com/nsuhara/items/05a2b41d94ced1f54316
+<https://qiita.com/nsuhara/items/05a2b41d94ced1f54316>
 おまいらのthreading.Eventの使い方は間違っている
-https://qiita.com/tag1216/items/2dcb112f8018eb19a999
+<https://qiita.com/tag1216/items/2dcb112f8018eb19a999>
 threading --- スレッドベースの並列処理
-https://docs.python.org/ja/3/library/threading.html
+<https://docs.python.org/ja/3/library/threading.html>
 queue --- 同期キュークラス
-https://docs.python.org/ja/3/library/queue.html
+<https://docs.python.org/ja/3/library/queue.html>
