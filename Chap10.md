@@ -17,9 +17,9 @@ Raspberry Pi OSにはあらかじめPythonがインストールされており�
 
 ```bash
 python --version
-Python 3.13.5
 ```
 
+![pythonバージョン確認](image/python_version.png)
 > 確認: 上記実行結果のようにPython <バージョン> と表示されていれば、問題なし。
 
 #### 外部ライブラリのインストール
@@ -29,13 +29,9 @@ Python 3.13.5
 
 ```bash
 sudo apt install -y python3-gpiozero python3-serial
-python3-gpiozero is already the newest version (2.0.1-0+rpt1+trixie).
-python3-serial is already the newest version (3.5-2).
-python3-serial set to manually installed.
-Summary:
-  Upgrading: 0, Installing: 0, Removing: 0, Not Upgrading: 142
 ```
 
+![ライブラリインストール](image/library.png)
 > 確認: 上記実行結果のようにエラーが表示されず、実行結果が表示されていれば、問題なし。
 
 ### 10.2.0 Pythonでの実装と実行
@@ -46,7 +42,7 @@ Summary:
 - **題材1:** 赤LEDを0.5秒ごとに点滅
 - **題材2:** 白スイッチを押している間だけ赤LEDを点灯
 - **題材3:** 白スイッチを押した回数をパソコンに表示
-- **題材4:** LEDとスイッチを別々のスレッドで動かす
+- **題材4:** 一定の周期で赤LEDを点滅
 - **題材5:** LEDとスイッチを別々のスレッドで動かす
 - **題材6:** 白スイッチでLEDの点滅の速さを切り替える
 
@@ -162,7 +158,7 @@ import traceback
 import time
 
 SW1 = 24
-MESSEAGE = "Trigger SW Detected!"
+MESSEAGE = "ボタン押下検知"
 count = 0
 
 button = Button(SW1, pull_up=False)
@@ -218,7 +214,7 @@ python no3.py
 
 ![題材3_動作結果](image/no3_result.png)
 
-> 確認: 白スイッチを押すと、CLI上に"Trigger SW Detected!"と出力されることを確認する。
+> 確認: 白スイッチを押すと、CLI上に"ボタン押下検知"と出力されることを確認する。シリアル通信のCLI上に押下回数が出力されることを確認する。
 
 ### 10.2.4. 題材4:一定の周期で赤LEDを点滅
 
