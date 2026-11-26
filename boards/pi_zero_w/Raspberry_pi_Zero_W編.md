@@ -118,7 +118,8 @@ gcc -g -pthread -o test test.c　-lgpiod
 メインスレッドで2つのスレッドを作成し、それぞれの処理を並行して実行する。
 
 <details>
-<summary>テストコード</summary> 
+<summary>題材：5のテストコード</summary> 
+
 ```C
 #include <stdio.h>
 #include <pthread.h>
@@ -423,6 +424,7 @@ int main(void)
 }
 
 ```
+
 </details>
 
 #### 処理の流れ
@@ -481,7 +483,8 @@ gcc -g -pthread -o no5 no5.c -lgpiod
 スイッチ入力用のスレッドで変更した点滅間隔を、LED制御用のスレッドで参照することで、スレッド間でデータを共有する。
 
 <details>
-<summary>テストコード</summary>  
+<summary>題材：6のテストコード</summary>
+
 ```C
 #include <stdio.h>
 #include <pthread.h>
@@ -837,6 +840,7 @@ int main(void)
     return 0;
 }
 ```
+
 </details>
 
 #### スレッド間のデータ共有
