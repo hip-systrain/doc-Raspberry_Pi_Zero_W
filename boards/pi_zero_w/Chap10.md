@@ -157,7 +157,7 @@ python no2.py
 
 - **①作るもの:** 白スイッチを押した回数をパソコンに表示する
 - **②配線:** LED1(赤) = SW1(白スイッチ) = 24
-- **③プログラム:** 使うライブラリ gpiozero
+- **③プログラム:** 使うライブラリ gpiozero, pyserial
 
 <details>
     <summary>no3.py</summary>
@@ -234,7 +234,7 @@ python no3.py
 
 - **①作るもの:** 一定の周期で赤LEDを点滅
 - **②配線:** LED1(赤) = 17
-- **③プログラム:** 使うライブラリ gpiozero, pyserial
+- **③プログラム:** 使うライブラリ gpiozero
 
 <details>
     <summary>no4.py</summary>
