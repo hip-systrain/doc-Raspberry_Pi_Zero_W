@@ -54,6 +54,9 @@ C言語で作成したプログラム同様、Windows上でプログラムを作
 - **②配線:** LED1(赤) = BCM 17
 - **③プログラム:**
 
+<details>
+    <summary>no1.py</summary>
+
 ```py
 # no1.py
 import time
@@ -74,6 +77,7 @@ try:
 finally:
    r_led.close()
 ```
+</datails>
 
 - **④実行:**
 ![No1_転送](images/no1_tensou.png)
@@ -92,6 +96,9 @@ python no1.py
 - **①作るもの:** 白スイッチを押している間だけ赤LEDを点灯
 - **②配線:** LED1(赤) = BCM 17, SW1(白スイッチ) = 24
 - **③プログラム:**
+
+<details>
+    <summary>no1.py</summary>
 
 ```py
 # no2.py
@@ -132,6 +139,8 @@ finally:
     button.close()
     sys.exit()
 ```
+
+</details>
 
 - **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
 
