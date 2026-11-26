@@ -118,7 +118,7 @@ gcc -g -pthread -o test test.c　-lgpiod
 メインスレッドで2つのスレッドを作成し、それぞれの処理を並行して実行する。
 
 <details>
-<summary>題材：5のテストコード</summary> 
+<summary>題材5のテストコード</summary> 
 
 ```C
 #include <stdio.h>
@@ -427,6 +427,81 @@ int main(void)
 
 </details>
 
+<details>
+<summary>題材5のシーケンス図</summary>
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Main as メインスレッド
+    participant LED as LED制御スレッド
+    participant SW as スイッチ入力スレッド
+    participant GPIO as GPIO(libgpiod)
+
+    Main->>Main: mutex・stop_flag初期化
+
+    Main->>LED: pthread_create()
+    activate LED
+    LED->>GPIO: gpiod_chip_open()
+    LED->>GPIO: request_gpio(GPIO17, OUTPUT)
+    GPIO-->>LED: request
+
+    Main->>SW: pthread_create()
+    activate SW
+    SW->>GPIO: gpiod_chip_open()
+    SW->>GPIO: request_gpio(GPIO24, INPUT)
+    GPIO-->>SW: request
+
+    Main->>Main: 30秒間 sleep()
+
+    par LED制御
+        loop 終了要求まで繰り返す
+            LED->>GPIO: GPIO17をHIGH
+            LED->>LED: sleep(1秒)
+            LED->>GPIO: GPIO17をLOW
+            LED->>LED: sleep(1秒)
+            LED->>Main: is_stopping()で終了確認
+        end
+    and スイッチ監視
+        loop 終了要求まで繰り返す
+            SW->>GPIO: GPIO24の入力値を取得
+            GPIO-->>SW: 入力値
+            alt スイッチが押された
+                SW->>SW: 前回の状態を確認
+                alt 前回は未押下
+                    SW->>Main: 押下メッセージを表示
+                    Note over SW: previous_pressed = 1
+                end
+            else スイッチが離された
+                SW->>SW: previous_pressed = 0
+            end
+            SW->>SW: usleep(100ms)
+        end
+    end
+
+    Main->>Main: mutexをロック
+    Main->>Main: stop_flag = 1
+    Main->>Main: mutexをアンロック
+
+    Main->>LED: pthread_join()
+    LED->>GPIO: GPIO17をLOW
+    LED->>GPIO: gpiod_line_request_release()
+    LED->>GPIO: gpiod_chip_close()
+    LED-->>Main: スレッド終了
+    deactivate LED
+
+    Main->>SW: pthread_join()
+    SW->>GPIO: gpiod_line_request_release()
+    SW->>GPIO: gpiod_chip_close()
+    SW-->>Main: スレッド終了
+    deactivate SW
+
+    Main->>Main: pthread_mutex_destroy()
+    Main->>Main: プログラム終了
+```
+
+</details>
+
 #### 処理の流れ
 
 プログラム全体の処理の流れを以下に示す。
@@ -483,7 +558,7 @@ gcc -g -pthread -o no5 no5.c -lgpiod
 スイッチ入力用のスレッドで変更した点滅間隔を、LED制御用のスレッドで参照することで、スレッド間でデータを共有する。
 
 <details>
-<summary>題材：6のテストコード</summary>
+<summary>題材6のテストコード</summary>
 
 ```C
 #include <stdio.h>
@@ -839,6 +914,110 @@ int main(void)
 
     return 0;
 }
+```
+
+</details>
+
+<details>
+<summary>題材6のシーケンス図</summary>
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Main as メインスレッド
+    participant LED as LED制御スレッド
+    participant SW as スイッチ入力スレッド
+    participant Mutex as mutex
+    participant GPIO as GPIO(libgpiod)
+
+    Main->>Main: mutex・stop_flag初期化
+    Note over Main: blink_interval = 1.0秒
+
+    Main->>LED: pthread_create()
+    activate LED
+    LED->>GPIO: gpiod_chip_open()
+    LED->>GPIO: request_gpio(GPIO17, OUTPUT)
+    GPIO-->>LED: request
+
+    Main->>SW: pthread_create()
+    activate SW
+    SW->>GPIO: gpiod_chip_open()
+    SW->>GPIO: request_gpio(GPIO24, INPUT)
+    GPIO-->>SW: request
+
+    Main->>Main: 30秒間 sleep()
+
+    par LED制御
+        loop 終了要求まで繰り返す
+            LED->>Mutex: pthread_mutex_lock()
+            LED->>LED: stop_flag・blink_interval取得
+            LED->>Mutex: pthread_mutex_unlock()
+
+            alt stop_flag == 1
+                LED->>LED: ループ終了
+            else stop_flag == 0
+                LED->>GPIO: GPIO17をHIGH
+                LED->>LED: interval秒待機
+                LED->>GPIO: GPIO17をLOW
+                LED->>LED: interval秒待機
+            end
+        end
+    and スイッチ監視
+        loop 終了要求まで繰り返す
+            SW->>Mutex: is_stopping()で終了状態を確認
+            SW->>Mutex: pthread_mutex_lock()
+            SW->>Mutex: stop_flag取得・unlock
+
+            alt 終了要求あり
+                SW->>SW: ループ終了
+            else 終了要求なし
+                SW->>GPIO: GPIO24の入力値を取得
+                GPIO-->>SW: 入力値
+
+                alt スイッチが押された
+                    SW->>SW: previous_pressedを確認
+                    alt 前回は未押下
+                        SW->>SW: 30ms待機（チャタリング対策）
+                        SW->>GPIO: GPIO24の入力値を再取得
+                        GPIO-->>SW: 入力値
+
+                        alt 再確認でも押下中
+                            SW->>Mutex: pthread_mutex_lock()
+                            SW->>SW: blink_intervalを切り替え
+                            Note over SW: 1.0秒 ⇔ 0.2秒
+                            SW->>Mutex: pthread_mutex_unlock()
+                            SW->>SW: 点滅間隔を表示
+                            SW->>SW: previous_pressed = 1
+                        end
+                    end
+                else スイッチが離された
+                    SW->>SW: previous_pressed = 0
+                end
+
+                SW->>SW: 50ms待機
+            end
+        end
+    end
+
+    Main->>Mutex: pthread_mutex_lock()
+    Main->>Main: stop_flag = 1
+    Main->>Mutex: pthread_mutex_unlock()
+
+    Main->>LED: pthread_join()
+    LED->>GPIO: GPIO17をLOW
+    LED->>GPIO: gpiod_line_request_release()
+    LED->>GPIO: gpiod_chip_close()
+    LED-->>Main: スレッド終了
+    deactivate LED
+
+    Main->>SW: pthread_join()
+    SW->>GPIO: gpiod_line_request_release()
+    SW->>GPIO: gpiod_chip_close()
+    SW-->>Main: スレッド終了
+    deactivate SW
+
+    Main->>Mutex: pthread_mutex_destroy()
+    Main->>Main: プログラム終了
 ```
 
 </details>
