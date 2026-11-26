@@ -58,104 +58,198 @@
 
 ### 3.1 新規プロジェクトの作成
 
-開発 PC に作業フォルダを作成し、その直下に、ビルドの手順を記述した `Makefile` と`ソースファイル(.c)`を用意する。<br>作業フォルダを Raspberry Pi Zero W に転送し、両方のファイルが届いたことを確認する。
-
-転送と確認には 2 つのターミナルを使う。どちらも開発 PC に表示されるため、本節ではコマンドの実行先に応じて次のように呼び分ける。
-
- | 本節での呼び方 | 備考 |
- | --- | --- |
- | **開発 PC のターミナル** | 開発 PC 上でコマンドを実行する Windows PowerShell の画面 |
- | **Raspberry Pi Zero W のターミナル** | 開発 PC から Raspberry Pi Zero W に SSH 接続した画面 |
-
+開発 PC に作業フォルダを作成し、その中に `Makefile` と`ソースファイル(.c)`を用意する。<br>WinSCP で作業を Raspberry Pi Zero W に転送し、 WinSCP の両方のファイルが届いたことを確認する。
 <br>
 
+#### 【新規プロジェクトの作成手順】<br>
+　今回の手順では、例として作業フォルダ名を `sample` 、ソースファイル名を `sample.c` とする。<br>
 
  > **手順前の準備**：Raspberry Pi Zero W に SSH 接続していない場合は、第 1 章の手順で開発 PC から接続する。<br>　　　　　　　※Raspberry Pi Zero W のターミナルは、転送したファイルの確認が終わるまで開いたままにする。
  <br>
 
+#### 開発 PC に作業フォルダを作成する
+
+1. 開発 PC のエクスプローラーを開く。<br>
+
+
+2. 作業フォルダを作成する任意の場所に移動する。<br>
+![任意のエクスプローラー](../pi_zero_w/images/z2_exp.png)
+
+3. エクスプローラーのファイル一覧の空いている場所を右クリックし、タブを開く。
 <br>
-【新規プロジェクトの作成手順】
+![タブ](../pi_zero_w/images/z2_file_tab.png)
 
-1. 開発 PC (Windows) のエクスプローラーで、任意の保存先にプロジェクト名と同じ名前のフォルダを作成する。<br>※今回は例として `sample` フォルダを作成
-![alt text](z2_project_folder.png)
-   <!-- 画面画像の挿入位置。Windows のエクスプローラーで作成したフォルダが見える画面を images/z2_project_folder.png として掲載する。 -->
+4. 新規作成を選択する。
 <br>
+![新規作成](../pi_zero_w/images/z2_new_file.png)
 
-2. 開発 PC の VS Code で、［ファイル］→［フォルダーを開く］から手順 1 で作成した作業フォルダを開く。
-
+5. フォルダーを選択する。
 <br>
+![フォルダー](../pi_zero_w/images/z2_new_file_create.png)
 
-3. VS Code のエクスプローラーで、作業フォルダ名の右にある［新しいファイル］を使い、大文字の `M` で始まる拡張子のないファイル `Makefile` を作成する。
-
+6. 名前を `sample` でフォルダを作成する。
 <br>
+![sampleフォルダ](../pi_zero_w/images/z2_sample_file.png)
 
-4. 手順 3 で作成した `Makefile` を VS Code で開き、次のプログラムを貼り付けて `Ctrl` + `S` で保存する。
+#### VS Code で作業フォルダを開く
 
-   このプログラムには、作業フォルダ直下の各ソースファイル(.c)から実行ファイルを作るための共通の手順を記述している。
+1. 開発 PC で VS Code を起動する。<br>
 
-   ```makefile
-   # C のコンパイラ、言語規格、警告、デバッグ情報の設定
-   CC = gcc
-   CFLAGS += -std=c11 -Wall -Wextra -g
+2. メニューバーの[ファイル]を選択する。<br>
+![メニューバーファイル](../pi_zero_w/images/z2_vscode_file.png)
 
-   # Raspberry Pi Zero W の GRaspberry Pi Zero WO を操作するライブラリの設定
-   CPPFLAGS += $(shell pkg-config --cflags libgRaspberry Pi Zero Wod)
-   LDLIBS += $(shell pkg-config --libs libgRaspberry Pi Zero Wod)
+3. [フォルダーを開く]を選択する。<br>
+![](../pi_zero_w/images/z2_vscode_folder.png)
 
-   # 作業フォルダ直下のソースファイル(.c)から実行ファイル名を求める
-   SOURCES := $(wildcard *.c)
-   PROGRAMS := $(SOURCES:.c=)
-
-   .PHONY: all
-   all: $(PROGRAMS)
-
-   # .c からコンパイルされた .o とライブラリをリンクして実行ファイルを作る
-   $(PROGRAMS): %: %.o ; $(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-   ```
-
+3. フォルダー選択画面で `sample` フォルダを選択する。
 <br>
+![](../pi_zero_w/images/z2_vscode_folder_open.png)
 
-5. ［新しいファイル］から、空白を含まない任意の名前に拡張子 `.c` を付けたソースファイルを作成する。<br>プログラムはあとでこのファイルに記述するため、作成時は空のままでよい。
-
-   > 確認: 作業フォルダ名の下に `Makefile` と `.c` ファイルが同じ深さで並んでいれば成功。
-
-   <!-- 画面画像の挿入位置。VS Code で［新しいファイル］ボタンと作成した 2 ファイルが見える画面を images/z2_vscode_files.png として掲載する。 -->
+4. [フォルダーの選択]をクリックする。
 <br>
-
-6. 開発 PC のエクスプローラーで、作業フォルダの1つ上のフォルダを表示する。<br>
+![](../pi_zero_w/images/z2_vscode_folder_open_click.png)
+　
+   >　確認： VS Code のエクスプローラーに `sample` フォルダが表示されれば成功。<br><br>
+   ![](../pi_zero_w/images//z2_check_vscode_folder.png)
 
 <br>
 
-7. 手順 6 のエクスプローラーのアドレスバーに `PowerShell` と入力し、`Enter` キーを押す。<br>**Raspberry Pi Zero W のターミナル**とは別に、**開発 PC のターミナル**が開く。<br>
+#### Makefile と ソースファイル(.c)を作成する
 
-   > 確認: 入力待ちの行に `PS C:\work>` のように、手順 6 で開いたフォルダのパスが表示される。
+1. VS Code のエクスプローラーで、作業フォルダ名の横にある[新しいファイル]をクリックする。<br>
+![](../pi_zero_w/images/z2_vscode_file_create.png)
+<br>
+
+2. ファイル名を `Makefile` で作成する。<br>※ファイル名は大文字の `M` で始め、拡張子は不要とする。<br>
+![](../pi_zero_w/images/z2_vscode_makefile_create.png)
+
+3.  `Makefile` の編集画面に、次の内容を記述し、保存する。
+
+      ```makefile
+      # C のコンパイラ、言語規格、警告、デバッグ情報の設定
+      CC = gcc
+      CFLAGS += -std=c11 -Wall -Wextra -g
+
+      # Raspberry Pi Zero W の GRaspberry Pi Zero WO を操作するライブラリの設定
+      CPPFLAGS += $(shell pkg-config --cflags libgpiod)
+      LDLIBS += $(shell pkg-config --libs libgpiod)
+
+      # 作業フォルダ直下のソースファイル(.c)から実行ファイル名を求める
+      SOURCES := $(wildcard *.c)
+      PROGRAMS := $(SOURCES:.c=)
+
+      .PHONY: all
+      all: $(PROGRAMS)
+
+      # .c からコンパイルされた .o とライブラリをリンクして実行ファイルを作る
+      $(PROGRAMS): %: %.o ; $(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+      ```
+
+      >　確認： `Makefile` の内容が次のようになっていれば成功。<br>
+      ![](../pi_zero_w/images/z2_check_vscode_makefile.png)
 
 <br>
 
-8. 手順 7 で開いた**開発 PC のターミナル**で、`scp` を使って、設定済みの `Makefile` と`ソースファイル(.c)`を作業フォルダごと Raspberry Pi Zero W に転送する。<br>
-   ```
-   scp -r ".\フォルダ名" "ユーザー名@ホスト名:."
-   ```
-   `フォルダ名` は手順 1 で付けた名前に置き換える。`ユーザー名@ホスト名` には、第 1 章で SSH 接続したときと同じ値を入力する。`-r` はフォルダの中身もまとめてコピーする指定である。
-   
-    > 注意: 転送先に同名のファイルがある場合は上書きされる。
+4. VS Code のエクスプローラーで、再度[新しいファイル]をクリックする。<br>
+<br>
+![](../pi_zero_w/images/z2_vscode_cfile_create.png)
+
+5. ファイル名を `sample.c` で作成する。<br>※プログラムは後で記述するため、この時点では空のファイルでよい。
+<br>
+![](../pi_zero_w/images/z2_vscode_c_file_create.png)
+
+   >　確認： 作業フォルダの直下に `Makefile` と `sample.c` が並んで表示されていれば成功。<br><br>
+   ![](../pi_zero_w/images/z2_check_vscode_files.png)
+
+
+####  WinSCP で Raspberry Pi Zero W に接続する
+
+1. 開発 PC で WinSCP を起動する。<br>
+
+2. ログイン画面で[新しいサイト]を選択する。<br>
+![](../pi_zero_w/images/z2_winscp_login.png)
+
+3. セッションの[転送プロトコル]で `SCP` を選択する。<br>
+![](../pi_zero_w/images/z2_winscp_session.png)
+
+4. [ホスト名]に、**1.1.1 Raspberry Pi Imager のインストール**で設定した `hostname` を設定する。
+<br>
+![](../pi_zero_w/images/z2_winscp_hostname.png)
+
+5. [ポート番号]に、標準のSSHポートである `22` を設定する。
+<br>
+![](../pi_zero_w/images/z2_winscp_poot.png)
+
+6. [ユーザー名]に、**1.1.1 Raspberry Pi Imager のインストール**で設定した `username` を設定する。
+<br>
+![](../pi_zero_w/images/z2_winscp_username.png)
+
+7. [保存]をクリックする。
+<br>
+![](../pi_zero_w/images/z2_winscp_save.png)
+
+8. [セッションの保存名]を入力する。<br>※今回の手順では、 `Raspberry Pi Zero W` と入力する。
+<br>
+![](../pi_zero_w/images/z2_winscp_savename.png)
+
+9. [OK]をクリックしてセッションを保存する。
+<br>
+![](../pi_zero_w/images/z2_winscp_session_save.png)
+
+   >　確認： ログイン画面の左側の一覧から、保存した `Raspberry Pi Zero W` が表示されていれば成功。<br><br>
+   ![](../pi_zero_w/images//z2_check_winscp_session.png)
+
+10. ログイン画面の左側の一覧から、保存した `Raspberry Pi Zero W` を選択する。
+<br>
+![](../pi_zero_w/images/z2_winscp_login_raspizero.png)
+
+11. [ログイン]をクリックする。<br>
+※パスワードの入力を求められた場合は、**1.1.1 Raspberry Pi Imager のインストール**で設定したログインユーザーのパスワードを入力する。
+<br>
+![](../pi_zero_w/images/z2_winscp_login_click.png)
+
+      >　確認：  WinSCP のリモート側(右側)に Raspberry Pi Zero W のファイル一覧が表示されれば接続成功。<br>
+      ![](../pi_zero_w/images/z2_check_winscp.png)
+
+####  作業フォルダを転送する
+1. WinSCP のリモート側で、ログインユーザーのホームフォルダを表示する。今回の手順では、ユーザー名を `pi` 、ホームフォルダを `/home/pi` とする。<br>
+ 別の場所が表示されている場合は、リモート側の一覧をクリックして `Ctrl` + `O` を押し、表示されたダイアログにホームフォルダのパスを入力して開く。<br>
+![](../pi_zero_w/images/z2_winscp_pi.png)
+
 <br>
 
-9. 転送が終わったら、開いたままの**Raspberry Pi Zero W のターミナル**に戻り、届いた作業フォルダに移動する。<br>
-   ```
-   cd ~/"フォルダ名"
-   ```
-   `フォルダ名`は手順 1 で付けた名前に置き換える。<br>
+2. 開発 PC のエクスプローラーで、`sample` フォルダが見えるように、その 1 つ上のフォルダを表示する。<br>
+![](../pi_zero_w/images/z2_winscp_samplefolder.png)
 
-10. 同じ**Raspberry Pi Zero W のターミナル**で、作業フォルダ内のファイルを表示する。 <br>
+3. エクスプローラーから `sample` フォルダをドラッグし、WinSCP のリモート側のファイル一覧の空いている場所にドロップする。<br>
+![](../pi_zero_w/images/z2_winscp_sample_folder_cd.png)
+      >　注意： 別のフォルダのアイコンに重ねると、そのフォルダが転送先になる。転送先に同名のファイルがある場合は、上書きするファイルを確認する。<br>
 
-    ```
-    ls -1
-    ```
 
-    > 確認: `Makefile` と、手順 5 で作成した `ソースファイル(.c)`の両方が表示されれば転送成功。
 
-<br><br>
+
+4. アップロード画面の「OK」を選択し、転送を開始する。<br>
+![](../pi_zero_w/images/z2_winscp_forward_OK.png)
+
+   >　確認： 転送先のリモートディレクトリのパスがあっているかを確認。<br>![](../pi_zero_w/images/z2_winscp_forward.png)
+
+5. 転送が終わったら、WinSCP のリモート側に sample フォルダが表示されたことを確認する。<br>
+![](../pi_zero_w/images/z2_check_winscp_sample_folder.png)
+      >　確認： Raspberry Pi Zero W 側の `sample` フォルダに `Makefile` と `sample.c` の両方が表示されれば、新規プロジェクトの作成は完了。<br><br>![](../pi_zero_w/images/z2_check_winscp_file.png)
+
+####  Raspberry Pi Zero W 側で転送したファイルを確認する
+
+1. WinSCP のリモート側で、転送した `sample` フォルダを開く。<br>
+![](../pi_zero_w/images//z2_winscp_remote_folder.png)
+<br>
+
+2. 開発 PC のエクスプローラーで `sample` フォルダを開く。<br>
+![](../pi_zero_w/images/z2_winscp_pc_folder.png)
+
+3. 開発 PC と WinSCP のリモート側のファイル一覧を見比べる。<br>
+![](../pi_zero_w/images/z2_check_winscp_sample_files.png)
+
+
 
 ### 3.2 プロジェクトの構成（フォルダ・ファイルの役割）
 本プロジェクトでは、開発 PC でプログラムを作成・編集し、Raspberry Pi Zero W 上でビルドして動作を確認する。<br>`ソースファイル(.c)`とビルド手順を記述した `Makefile` を 1 つの作業フォルダにまとめ、フォルダごと Raspberry Pi Zero W に転送できるように構成している。<br>
@@ -170,13 +264,9 @@
 | --- | --- | --- |
 | Makefile | 実行ファイルを作るために使うファイルとコマンドを記述する。 | `make` がこのファイルを読み、ビルドに必要なコマンドを実行する。 |
 | ソースファイル(.c) | プログラムの処理をC言語で記述する。 | `gcc` がオブジェクトファイル(`.o`)に変換する。この処理をコンパイルという。|
-| オブジェクトファイル(.o) | ― | コンパイルで生成される中間ファイル。これをGPIO操作用のライブラリ `libgRaspberry Pi Zero Wod` と結び付けて実行ファイルを作る処理をリンクという。 |
+| オブジェクトファイル(.o) | ― | コンパイルで生成される中間ファイル。これをGPIO操作用のライブラリ `libgpiod` と結び付けて実行ファイルを作る処理をリンクという。 |
 | 実行ファイル | ― | リンクによって作業フォルダに生成される。このファイルを起動して、プログラムの動作を確認する。 |
 <br>
-
-
-<!-- 実機確認用の執筆メモ。表紙・第 1 章の使用環境と照合する際は、開発 PC で VS Code の「ヘルプ → バージョン情報」、Raspberry Pi Zero W で cat /etc/os-release、gcc --version、make --version、pkg-config --modversion libgRaspberry Pi Zero Wod を確認する。 -->
-
 
 ## 4. コーディング・ビルド・書込み(RTOSなし)
 
