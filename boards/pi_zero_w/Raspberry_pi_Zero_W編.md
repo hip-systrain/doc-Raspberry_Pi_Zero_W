@@ -73,37 +73,37 @@
 
 
 2. 作業フォルダを作成する任意の場所に移動する。<br>
-![任意のエクスプローラー](../pi_zero_w/images/z2_exp.png)
+![任意のエクスプローラー](../pi_zero_w/images/z2_exp.png)<br>
 
-3. エクスプローラーのファイル一覧の空いている場所を右クリックし、タブを開く。
-<br>
-![タブ](../pi_zero_w/images/z2_file_tab.png)
+3. エクスプローラーのファイル一覧の空いている場所を右クリックし、タブを開く。<br>
 
-4. 新規作成を選択する。
-<br>
-![新規作成](../pi_zero_w/images/z2_new_file.png)
+![タブ](../pi_zero_w/images/z2_file_tab.png)<br>
 
-5. フォルダーを選択する。
-<br>
-![フォルダー](../pi_zero_w/images/z2_new_file_create.png)
+4. 新規作成を選択する。<br>
 
-6. 名前を `sample` でフォルダを作成する。
-<br>
-![sampleフォルダ](../pi_zero_w/images/z2_sample_file.png)
+![新規作成](../pi_zero_w/images/z2_new_file.png)<br>
+
+5. フォルダーを選択する。<br>
+
+![フォルダー](../pi_zero_w/images/z2_new_file_create.png)<br>
+
+6. 名前を `sample` でフォルダを作成する。<br>
+
+![sampleフォルダ](../pi_zero_w/images/z2_sample_file.png)<br>
 
 #### VS Code で作業フォルダを開く
 
 1. 開発 PC で VS Code を起動する。<br>
 
 2. メニューバーの[ファイル]を選択する。<br>
-![メニューバーファイル](../pi_zero_w/images/z2_vscode_file.png)
+![メニューバーファイル](../pi_zero_w/images/z2_vscode_file.png)<br>
 
 3. [フォルダーを開く]を選択する。<br>
-![](../pi_zero_w/images/z2_vscode_folder.png)
+![](../pi_zero_w/images/z2_vscode_folder.png)<br>
 
 3. フォルダー選択画面で `sample` フォルダを選択する。
 <br>
-![](../pi_zero_w/images/z2_vscode_folder_open.png)
+![](../pi_zero_w/images/z2_vscode_folder_open.png)<br>
 
 4. [フォルダーの選択]をクリックする。
 <br>
