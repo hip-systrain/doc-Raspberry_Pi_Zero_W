@@ -51,8 +51,7 @@ pthreadでは、主に次の関数を使用する。
 #### pthreadを使用したプログラムの作成
 
 pthreadを使用するには、`pthread.h`をインクルードする。
-<details>
-<summary>テストコード</summary>  
+
 ```c
 #include <stdio.h>
 #include <pthread.h>
@@ -80,7 +79,6 @@ int main(void)
     return 0;
 }
 ```
-</details>
 
 このプログラムでは、`pthread_create()`で新しいスレッドを作成し、`thread_func()`を実行する。
 
@@ -482,6 +480,8 @@ gcc -g -pthread -o no5 no5.c -lgpiod
 
 スイッチ入力用のスレッドで変更した点滅間隔を、LED制御用のスレッドで参照することで、スレッド間でデータを共有する。
 
+<details>
+<summary>テストコード</summary>  
 ```C
 #include <stdio.h>
 #include <pthread.h>
