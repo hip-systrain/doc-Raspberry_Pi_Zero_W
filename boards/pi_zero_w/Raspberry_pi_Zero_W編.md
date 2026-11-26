@@ -131,35 +131,35 @@ Raspberry Pi Zero Wでは、Linuxを搭載した Raspberry Pi OS 上でプログ
 2. Raspberry Pi Imagerを起動する。
 3. Deviceを設定する。<br>
 Raspberry Pi Zeroを選択し、次へを押下する。<br>
-<img src="images/動確_1.1_RasPiOS(1).png" width="25%">
+![Raspberry Pi Imager(1)](images/動確_1.1_RasPiOS(1).png)
 4. OSを設定する<br>
 Raspberry Pi OS (32-bit)を選択し、次へを押下する。<br>
-<img src="images/動確_1.1_RasPiOS(2).png" width="25%">
+![Raspberry Pi Imager(2)](images/動確_1.1_RasPiOS(2).png)
 5. ストレージを設定する<br>
 表示されているストレージデバイスから選択し、次へを押下する。<br>
 ** ※ Exclude system drivesのチェックはつけておく。 **<br>
-<img src="images/動確_1.1_RasPiOS(3).png" width="25%">
+![Raspberry Pi Imager(3)](images/動確_1.1_RasPiOS(3).png)
 6. hostnameを設定する。<br>
 文字、数字、ハイフンのみで入力し、次へを押下する。<br>
-<img src="images/動確_1.1_RasPiOS(4).png" width="25%">
+![Raspberry Pi Imager(4)](images/動確_1.1_RasPiOS(4).png)
 7. Localisationを設定する。<br>
-<img src="images/動確_1.1_RasPiOS(5).png" width="25%">
+![Raspberry Pi Imager(5)](images/動確_1.1_RasPiOS(5).png)
 8. usernameを設定する。<br>
 小文字で、文字、数字、アンダースコア、ハイフンのみで入力、パスワードも入力を行い、次へを押下する。<br>
-<img src="images/動確_1.1_RasPiOS(6).png" width="25%">
+![Raspberry Pi Imager(6)](images/動確_1.1_RasPiOS(6).png)
 9. Wi-Fiを設定する。<br>
-<img src="images/動確_1.1_RasPiOS(7).png" width="25%">
+![Raspberry Pi Imager(7)](images/動確_1.1_RasPiOS(7).png)
 10. SSH authenticationを設定する。<br>
-<img src="images/動確_1.1_RasPiOS(8).png" width="25%">
+![Raspberry Pi Imager(8)](images/動確_1.1_RasPiOS(8).png)
 11. Raspberry Pi Connectを設定する。<br>
-<img src="images/動確_1.1_RasPiOS(9).png" width="25%">
+![Raspberry Pi Imager(9)](images/動確_1.1_RasPiOS(9).png)
 12. Writeを押下し、書き込みを始める。<br>
-<img src="images/動確_1.1_RasPiOS(10).png" width="25%">
+![Raspberry Pi Imager(10)](images/動確_1.1_RasPiOS(10).png)
 13. I UNDERSTAND, ERASE AND WRITEを押下する。<br>
 書き込み時に、現在マイクロSDに書かれている内容を削除してから書き込むことを確認されているため、理解していることを伝える。<br>
-<img src="images/動確_1.1_RasPiOS(11).png" width="25%">
+![Raspberry Pi Imager(11)](images/動確_1.1_RasPiOS(11).png)
 14. 書き込みが終了したらFINISHを押下する。<br>
-<img src="images/動確_1.1_RasPiOS(12).png" width="25%">
+![Raspberry Pi Imager(12)](images/動確_1.1_RasPiOS(12).png)
 15. マイクロSDカードを抜く。
 
 #### 1.1.3 TeraTermのインストール
