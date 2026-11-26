@@ -161,10 +161,6 @@ static struct gpiod_line_request* request_gpio(
 
     /* GPIOの設定を作成する */
     settings = gpiod_line_settings_new();
-    if (settings == NULL) {
-        perror("gpiod_line_settings_new");
-        goto cleanup;
-    }
 
     /* GPIOの入出力方向を設定する */
     if (gpiod_line_settings_set_direction(settings, direction) < 0) {
@@ -195,10 +191,6 @@ static struct gpiod_line_request* request_gpio(
 
     /* GPIOの設定をまとめるための領域を作成する */
     line_config = gpiod_line_config_new();
-    if (line_config == NULL) {
-        perror("gpiod_line_config_new");
-        goto cleanup;
-    }
 
     /* 指定したGPIO番号に設定を適用する */
     if (gpiod_line_config_add_line_settings(
@@ -209,9 +201,6 @@ static struct gpiod_line_request* request_gpio(
 
     /* GPIOチップに対してGPIOの使用を要求する */
     request = gpiod_chip_request_lines(chip, NULL, line_config);
-    if (request == NULL) {
-        perror("gpiod_chip_request_lines");
-    }
 
 cleanup:
     /* 使用が終わった設定情報を解放する */
@@ -267,20 +256,10 @@ static void* led_thread(void* arg)
 
     /* GPIOチップを開く */
     chip = gpiod_chip_open("/dev/gpiochip0");
-    if (chip == NULL) {
-        perror("gpiod_chip_open");
-        return NULL;
-    }
 
     /* LED用GPIOを出力として要求する */
     request = request_gpio(
         chip, LED_GPIO, GPIOD_LINE_DIRECTION_OUTPUT);
-
-    /* GPIOの要求に失敗した場合は終了する */
-    if (request == NULL) {
-        gpiod_chip_close(chip);
-        return NULL;
-    }
 
     /* 終了要求が出るまでLEDの点灯・消灯を繰り返す */
     while (!is_stopping(data)) {
@@ -342,32 +321,16 @@ static void* switch_thread(void* arg)
 
     /* GPIOチップを開く */
     chip = gpiod_chip_open("/dev/gpiochip0");
-    if (chip == NULL) {
-        perror("gpiod_chip_open");
-        return NULL;
-    }
 
     /* スイッチ用GPIOを入力として要求する */
     request = request_gpio(
         chip, SWITCH_GPIO, GPIOD_LINE_DIRECTION_INPUT);
-
-    /* GPIOの要求に失敗した場合は終了する */
-    if (request == NULL) {
-        gpiod_chip_close(chip);
-        return NULL;
-    }
 
     /* 終了要求が出るまでスイッチの入力を監視する */
     while (!is_stopping(data)) {
 
         /* スイッチの現在の入力状態を取得する */
         value = gpiod_line_request_get_value(request, SWITCH_GPIO);
-
-        /* 入力値の取得に失敗した場合は終了する */
-        if (value < 0) {
-            perror("gpiod_line_request_get_value");
-            break;
-        }
 
         /* スイッチが押されている場合 */
         if (value == GPIOD_LINE_VALUE_ACTIVE) {
@@ -421,52 +384,13 @@ int main(void)
 
     /* LED制御用スレッドを作成する */
     ret = pthread_create(&led_id, NULL, led_thread, &data);
-    if (ret != 0) {
-        /* スレッド作成に失敗した場合はエラー内容を表示する */
-        fprintf(stderr, "pthread_create: %s\n", strerror(ret));
-
-        /* mutexを破棄してプログラムを終了する */
-        pthread_mutex_destroy(&data.mutex);
-        return 1;
-    }
 
     /* スイッチ入力用スレッドを作成する */
     ret = pthread_create(&switch_id, NULL, switch_thread, &data);
-    if (ret != 0) {
-        /* スレッド作成に失敗した場合はエラー内容を表示する */
-        fprintf(stderr, "pthread_create: %s\n", strerror(ret));
-
-        /*
-         * スイッチ入力用スレッドの作成に失敗したため、
-         * 先に作成したLED制御用スレッドに終了を通知する。
-         */
-
-        /* 終了フラグを変更するためmutexをロックする */
-        pthread_mutex_lock(&data.mutex);
-
-        /* LED制御用スレッドに終了を通知する */
-        data.stop_flag = 1;
-
-        /* 終了フラグの変更が終わったためmutexを解除する */
-        pthread_mutex_unlock(&data.mutex);
-
-        /* LED制御用スレッドの終了を待つ */
-        pthread_join(led_id, NULL);
-
-        /* mutexを破棄してプログラムを終了する */
-        pthread_mutex_destroy(&data.mutex);
-        return 1;
-    }
 
     /* 2つのスレッドによる並行処理を30秒間実行する */
     printf("30秒間、並行処理を実行します。\n");
     sleep(30);
-
-    /*
-     * 30秒経過したため、各スレッドに終了を通知する。
-     * stop_flagは複数スレッドから参照されるため、
-     * mutexを使用して安全に変更する。
-     */
 
     /* 終了フラグを変更するためmutexをロックする */
     pthread_mutex_lock(&data.mutex);
@@ -695,19 +619,10 @@ static void* led_thread(void* arg)
 
     /* GPIOチップを開く */
     chip = gpiod_chip_open("/dev/gpiochip0");
-    if (chip == NULL) {
-        perror("gpiod_chip_open");
-        return NULL;
-    }
 
     /* LED用GPIOを出力として要求する */
     request = request_gpio(
         chip, LED_GPIO, GPIOD_LINE_DIRECTION_OUTPUT);
-
-    if (request == NULL) {
-        gpiod_chip_close(chip);
-        return NULL;
-    }
 
     while (1) {
         /* 共有変数を取得するため、ミューテックスをロックする */
@@ -776,19 +691,10 @@ static void* switch_thread(void* arg)
 
     /* GPIOチップを開く */
     chip = gpiod_chip_open("/dev/gpiochip0");
-    if (chip == NULL) {
-        perror("gpiod_chip_open");
-        return NULL;
-    }
 
     /* スイッチ用GPIOを入力として要求する */
     request = request_gpio(
         chip, SWITCH_GPIO, GPIOD_LINE_DIRECTION_INPUT);
-
-    if (request == NULL) {
-        gpiod_chip_close(chip);
-        return NULL;
-    }
 
     while (1) {
         /* 終了要求があれば、入力監視を終了する */
@@ -798,11 +704,6 @@ static void* switch_thread(void* arg)
 
         /* スイッチの現在の入力値を取得する */
         value = gpiod_line_request_get_value(request, SWITCH_GPIO);
-
-        if (value < 0) {
-            perror("gpiod_line_request_get_value");
-            break;
-        }
 
         /*
          * Active High：
@@ -817,11 +718,6 @@ static void* switch_thread(void* arg)
                 /* 待機後にスイッチの状態を再確認する */
                 value = gpiod_line_request_get_value(
                     request, SWITCH_GPIO);
-
-                if (value < 0) {
-                    perror("gpiod_line_request_get_value");
-                    break;
-                }
 
                 /* 待機後もHIGHであれば、押下を確定する */
                 if (value == GPIOD_LINE_VALUE_ACTIVE) {
@@ -890,11 +786,7 @@ static int is_stopping(thread_data_t* data)
 
 /*
  * 関数名：main
- * 概要  ：プログラムの開始処理と終了処理を行う。
- *         LED制御用スレッドとスイッチ入力用スレッドを作成し、
- *         30秒間並行処理を実行する。
- * 引数  ：なし
- * 戻り値：正常終了の場合は0、異常終了の場合は1
+ * 概要  ：スレッドを作成し、終了処理を行う。
  */
 int main(void)
 {
@@ -912,33 +804,9 @@ int main(void)
 
     /* LED制御用スレッドを作成する */
     ret = pthread_create(&led_id, NULL, led_thread, &data);
-    if (ret != 0) {
-        fprintf(stderr, "pthread_create: %s\n", strerror(ret));
-
-        /* 使用しなくなったミューテックスを破棄する */
-        pthread_mutex_destroy(&data.mutex);
-
-        return 1;
-    }
 
     /* スイッチ入力用スレッドを作成する */
     ret = pthread_create(&switch_id, NULL, switch_thread, &data);
-    if (ret != 0) {
-        fprintf(stderr, "pthread_create: %s\n", strerror(ret));
-
-        /* 作成済みのLEDスレッドに終了を通知する */
-        pthread_mutex_lock(&data.mutex);
-        data.stop_flag = 1;
-        pthread_mutex_unlock(&data.mutex);
-
-        /* LEDスレッドの終了を待つ */
-        pthread_join(led_id, NULL);
-
-        /* ミューテックスを破棄する */
-        pthread_mutex_destroy(&data.mutex);
-
-        return 1;
-    }
 
     /* 並行処理の実行開始を表示する */
     printf("30秒間、並行処理を実行します。\n");
