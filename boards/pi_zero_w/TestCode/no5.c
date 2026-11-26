@@ -1,25 +1,3 @@
-
-/*
- * ファイル名：93thread_test.c
- * 概要：
- *   LED制御とスイッチ入力を別々のスレッドで実行する。
- *
- *   LED制御スレッド：
- *     LEDを1秒間隔で点灯・消灯する。
- *
- *   スイッチ入力スレッド：
- *     スイッチの入力状態を監視し、押されたことを検出する。
- *
- *   メインスレッド：
- *     2つのスレッドを作成し、30秒後に終了させる。
- *
- * コンパイル：
- *   gcc -g -pthread -o 93thread_test 93thread_test.c -lgpiod
- *
- * 実行：
- *   ./93thread_test
- */
-
 #include <stdio.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -129,7 +107,6 @@ cleanup:
     return request;
 }
 
-
 /*
  * 関数名：is_stopping
  * 概要  ：スレッドの終了要求が出ているか確認する。
@@ -152,7 +129,6 @@ static int is_stopping(thread_data_t* data)
 
     return stop;
 }
-
 
 /*
  * 関数名：led_thread
@@ -223,7 +199,6 @@ static void* led_thread(void* arg)
     return NULL;
 }
 
-
 /*
  * 関数名：switch_thread
  * 概要  ：スイッチの入力状態を監視するスレッド。
@@ -274,18 +249,6 @@ static void* switch_thread(void* arg)
             break;
         }
 
-        /* スイッチの入力値を表示する（デバッグ用） */
-        //printf("SWITCH_GPIO = %d\n", value);
-        //fflush(stdout);
-
-        /*
-        * Active High方式：
-        * スイッチが押されるとGPIOがHIGHになる。
-        *
-        * previous_pressedを使用することで、
-        * 押し続けている間に何度も表示されることを防ぐ。
-        */
-
         /* スイッチが押されている場合 */
         if (value == GPIOD_LINE_VALUE_ACTIVE) {
         
@@ -316,7 +279,6 @@ static void* switch_thread(void* arg)
 
     return NULL;
 }
-
 
 /*
  * 関数名：main

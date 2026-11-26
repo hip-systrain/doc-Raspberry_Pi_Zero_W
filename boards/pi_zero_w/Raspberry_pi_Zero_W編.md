@@ -89,7 +89,7 @@ int main(void)
 pthreadを使用するプログラムは、コンパイル時に`-pthread`オプションを指定する。
 
 ```bash
-gcc -pthread -o thread_test thread_test.c　-lgpiod
+gcc -g -pthread -o test test.c　-lgpiod
 ```
 
 | オプション | 役割 |
@@ -521,13 +521,13 @@ int main(void)
 pthreadを使用するため、コンパイル時に`-pthread`オプションを指定する。
 
 ```bash
-gcc -pthread -o thread_test thread_test.c -lgpiod
+gcc -g -pthread -o no5 no5.c -lgpiod
 ```
 
 コンパイル後、以下のコマンドでプログラムを実行する。
 
 ```bash
-./thread_test
+./no5
 ```
 
 #### 動作確認
@@ -1023,13 +1023,13 @@ LED制御用のスレッドでは、点滅間隔を取得した後にmutexのロ
 pthreadを使用するため、コンパイル時に`-pthread`オプションを指定する。
 
 ```bash
-gcc -pthread -o thread_test thread_test.c -lgpiod
+gcc -g -pthread -o no6 no6.c -lgpiod
 ```
 
 コンパイル後、以下のコマンドでプログラムを実行する。
 
 ```bash
-./thread_test
+./no6
 ```
 
 #### 動作確認
