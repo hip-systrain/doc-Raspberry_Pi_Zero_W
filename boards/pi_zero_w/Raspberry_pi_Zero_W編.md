@@ -348,15 +348,13 @@ pkg-config --modversion libgpiod
 1. Raspberry Pi Zero W の電源が OFF になっていることを確認する。
 2. CH340E USB シリアル変換モジュールと Raspberry Pi Zero W の GPIO ピンをジャンパーワイヤーで接続する。
 
-| CH340E側 | Raspberry Pi Zero W側 | 物理ピン番号 | 
-| -------- | --------------------- | ------------ | 
-| TXD      | GPIO15（RXD）         | 10           | 
-| RXD      | GPIO14（TXD）         | 8            | 
-| GND      | GND                   | 6            | 
+| CH340E側 | Raspberry Pi Zero W側 | 物理ピン番号 | 接続状態 |
+| -------- | --------------------- | ------------ | -------- |
+| RXD      | GPIO14（RXD）         | 8            | 接続   |
+| GND      | GND                   | 6            | 接続     |
+| TXD      | GPIO15（TXD）         | 10           | 非接続     |
 
-<!--※Raspberry Pi Zero W へのログインに必要なためTXDも接続する-->
-
-![Raspberry Pi Zero WとCH340Eの接続図](images/S2_SerialConnection.png)
+![Raspberry Pi Zero WとCH340Eの接続図](images/z1_SerialConnection.png)
 
 3. CH340E USB シリアル変換モジュールを USB ケーブルで開発PCに接続する。
 4. Raspberry Pi Zero W の電源を ON にする。
@@ -392,7 +390,7 @@ Raspberry Pi Zero W とシリアル通信を行うため、TeraTerm の通信設
 | ストップビット | 1 bit |
 | フロー制御 | none |
 
-![TeraTermシリアルポート設定画面](images/S2_TeraTermSerialSetting.png)
+![TeraTermシリアルポート設定画面](images/z1_TeraTermSerialSetting.png)
 
 3. 設定内容を確認して「OK」を押下する。
 
@@ -400,17 +398,16 @@ Raspberry Pi Zero W とシリアル通信を行うため、TeraTerm の通信設
 
 ### 2.3 動作確認
 
-シリアル通信によって Raspberry Pi Zero W の起動メッセージが表示されることを確認する。
+シリアル通信によって Raspberry Pi Zero W の起動メッセージが開発 PC に表示されることを確認する。
 
-1. Raspberry Pi Zero W の電源を OFF にする。
-```bash
-sudo shutdown -h now
-```
-2. TeraTerm がシリアルポートに接続されていることを確認する。
+1. Raspberry Pi Zero W の電源が OFF になっていることを確認する。
+
+2. TeraTerm が CH340E に割り当てられた COM ポートに接続されていることを確認する。
+
 3. Raspberry Pi Zero W の電源を ON にする。
-4. TeraTerm の画面に起動メッセージが表示されることを確認する。
-5. ログインを求められた場合は、Raspberry Pi Imager で設定したユーザー名とパスワードを入力する。
 
-> 確認：Raspberry Pi Zero W の起動メッセージが表示され、ログイン後にコマンドを入力できれば成功。
+4. TeraTerm の画面に Raspberry Pi Zero W の起動メッセージが表示されることを確認する。
 
-> 注意：パスワード入力中は、入力した文字が画面に表示されない。
+> 確認：TeraTerm の画面に Raspberry Pi Zero W の起動メッセージが表示されれば成功。
+
+> 注意：本手順では CH340E の TXD を Raspberry Pi Zero W に接続しないため、TeraTerm からコマンドを入力することはできない。起動メッセージの表示確認のみを行う。
