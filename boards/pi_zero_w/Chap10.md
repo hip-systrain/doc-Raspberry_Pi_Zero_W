@@ -24,8 +24,8 @@ python --version
 
 #### 外部ライブラリのインストール
 
-**・gpiozero**:Raspberry Pi上のGPIO(I/Oポート)を制御する為に必要なライブラリ
-**・serial**:Pythonでシリアル通信を行うのに必要なライブラリ
+**・gpiozero**:Raspberry Pi上のGPIO(I/Oポート)を制御する為に必要なライブラリ<br>
+**・serial**:Pythonでシリアル通信を行うのに必要なライブラリ<br>
 
 ```bash
 sudo apt install -y python3-gpiozero python3-serial
@@ -237,7 +237,7 @@ python no3.py
 
 - **①作るもの:** 一定の周期で赤LEDを点滅
 - **②配線:** LED1(赤) = 17
-- **③プログラム:** 使うライブラリ gpiozero
+- **③プログラム:** 使うライブラリ gpiozero, pyserial
 
 ```py
 # no4.py
@@ -481,11 +481,11 @@ Raspberry PiはOSにPythonが含まれているので、環境構築について
 
 ### 参考文献
 
-Raspberry PiのセットアップからPython環境のインストールまで
-<https://qiita.com/nsuhara/items/05a2b41d94ced1f54316>
-おまいらのthreading.Eventの使い方は間違っている
-<https://qiita.com/tag1216/items/2dcb112f8018eb19a999>
-threading --- スレッドベースの並列処理
-<https://docs.python.org/ja/3/library/threading.html>
-queue --- 同期キュークラス
-<https://docs.python.org/ja/3/library/queue.html>
+Raspberry PiのセットアップからPython環境のインストールまで<br>
+<https://qiita.com/nsuhara/items/05a2b41d94ced1f54316><br>
+おまいらのthreading.Eventの使い方は間違っている<br>
+<https://qiita.com/tag1216/items/2dcb112f8018eb19a999><br>
+threading --- スレッドベースの並列処理<br>
+<https://docs.python.org/ja/3/library/threading.html><br>
+queue --- 同期キュークラス<br>
+<https://docs.python.org/ja/3/library/queue.html><br>
