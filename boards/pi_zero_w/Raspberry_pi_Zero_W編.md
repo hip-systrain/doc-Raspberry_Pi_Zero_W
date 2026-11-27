@@ -252,8 +252,6 @@
 
 ## 4. コーディング・ビルド・書込み(RTOSなし)
 
-## 4. コーディング・ビルド・書込み(RTOSなし)
-
 本章では、Raspberry Pi Zero W と IoT 学習 HAT を使い、「LED 点滅」「ボタン入力」「UART 出力」「タイマ割込み」の 4 つの題材に取り組む。
 
 **各題材に共通する作業の流れ**
@@ -397,6 +395,158 @@ Tera Term の SSH 画面で ./led_blink を実行する。赤 LED が約 0.5 秒
 
 
 ### 4.2 題材2:ボタン入力
+### 10.2.2. 題材2:白スイッチを押している間だけ赤LEDを点灯
+
+- **①作るもの:** 白スイッチを押している間だけ赤LEDを点灯
+- **②配線:** LED1(赤) = BCM 17, SW1(白スイッチ) = 24
+- **③プログラム:** 使うライブラリ gpiozero
+
+<details>
+    <summary>no2.c</summary>
+
+```C
+
+
+#define _POSIX_C_SOURCE 200809L
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <time.h>
+#include <gpiod.h>
+
+#define CHIP_PATH   "/dev/gpiochip0"
+#define LED1        17U
+#define SW1         24U
+#define SLEEP_TIME  50000000L
+
+static volatile sig_atomic_t stop_flag = 0;
+
+void signal_handler(int signal_number)
+{
+    (void)signal_number;
+    stop_flag = 1;
+}
+
+int main(void)
+{
+    const unsigned int led_offset = LED1;
+    const unsigned int sw_offset = SW1;
+    const struct timespec interval = {
+        .tv_sec = 0,
+        .tv_nsec = SLEEP_TIME
+    };
+
+    struct gpiod_chip *chip = gpiod_chip_open(CHIP_PATH);
+    struct gpiod_line_settings *settings = gpiod_line_settings_new();
+    struct gpiod_line_config *config = gpiod_line_config_new();
+    struct gpiod_line_request *request = NULL;
+
+    bool current_state;
+    bool last_state = false;
+    int result = EXIT_FAILURE;
+
+    // LEDを出力に設定
+    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT);
+    gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_config_add_line_settings(config, &led_offset, 1U, settings);
+
+    // SWを入力に設定
+    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_INPUT);
+    gpiod_line_settings_set_bias(settings, GPIOD_LINE_BIAS_PULL_DOWN);
+    gpiod_line_config_add_line_settings(config, &sw_offset, 1U, settings);
+
+    // GPIOラインを要求
+    request = gpiod_chip_request_lines(chip, NULL, config);
+
+    signal(SIGINT, signal_handler);
+
+    printf("SW1を押す:LED1(赤)点灯\n");
+    printf("Ctrl+C:プログラム終了\n");
+
+    result = EXIT_SUCCESS;
+
+    while (!stop_flag) {
+
+        // SWの状態を取得
+        int sw_value = gpiod_line_request_get_value(
+            request, sw_offset);
+
+        if (sw_value < 0) {
+            result = EXIT_FAILURE;
+            break;
+        }
+
+        current_state = (sw_value == GPIOD_LINE_VALUE_ACTIVE);
+
+        // LEDの状態を設定
+        int led_value = current_state
+            ? GPIOD_LINE_VALUE_ACTIVE
+            : GPIOD_LINE_VALUE_INACTIVE;
+
+        if (gpiod_line_request_set_value(
+                request, led_offset, led_value) < 0) {
+            result = EXIT_FAILURE;
+            break;
+        }
+
+        // OFFからONに変化した場合
+        if (current_state && !last_state) {
+            printf("LED点灯\n");
+        }
+
+        last_state = current_state;
+
+        // 50ms待機
+        if (nanosleep(&interval, NULL) < 0) {
+            result = EXIT_FAILURE;
+            break;
+        }
+    }
+
+    printf("\n動作を終了します。\n");
+
+cleanup:
+
+    if (request != NULL) {
+        gpiod_line_request_set_value(
+            request, led_offset, GPIOD_LINE_VALUE_INACTIVE);
+        gpiod_line_request_release(request);
+    }
+
+    if (config != NULL) {
+        gpiod_line_config_free(config);
+    }
+
+    if (settings != NULL) {
+        gpiod_line_settings_free(settings);
+    }
+
+    if (chip != NULL) {
+        gpiod_chip_close(chip);
+    }
+
+    return result;
+}
+
+```
+
+</details>
+
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+
+```bash
+python no2.py
+```
+
+- **⑤動作確認:**
+![題材2_動作結果](images/no2_result.png)
+
+> 確認: 白スイッチを押すとRaspberry Pi基盤上の赤LEDが点灯し、CLI上に"LED点灯"と出力されることを確認する。
+
+
+
 ### 4.3 題材3:UART出力
 ### 4.4 題材4:タイマ割込み
 
