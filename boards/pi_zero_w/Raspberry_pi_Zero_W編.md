@@ -395,17 +395,15 @@ Tera Term の SSH 画面で ./led_blink を実行する。赤 LED が約 0.5 秒
 
 
 ### 4.2 題材2:ボタン入力
-### 10.2.2. 題材2:白スイッチを押している間だけ赤LEDを点灯
 
 - **①作るもの:** 白スイッチを押している間だけ赤LEDを点灯
 - **②配線:** LED1(赤) = BCM 17, SW1(白スイッチ) = 24
-- **③プログラム:** 使うライブラリ gpiozero
+- **③プログラム:** 使うライブラリ gpiod
 
 <details>
     <summary>no2.c</summary>
 
 ```C
-
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
@@ -466,8 +464,7 @@ int main(void)
     while (!stop_flag) {
 
         // SWの状態を取得
-        int sw_value = gpiod_line_request_get_value(
-            request, sw_offset);
+        int sw_value = gpiod_line_request_get_value(request, sw_offset);
 
         current_state = (sw_value == GPIOD_LINE_VALUE_ACTIVE);
 
@@ -491,25 +488,12 @@ int main(void)
 
     printf("\n動作を終了します。\n");
 
-cleanup:
-
-    if (request != NULL) {
-        gpiod_line_request_set_value(
-            request, led_offset, GPIOD_LINE_VALUE_INACTIVE);
-        gpiod_line_request_release(request);
-    }
-
-    if (config != NULL) {
-        gpiod_line_config_free(config);
-    }
-
-    if (settings != NULL) {
-        gpiod_line_settings_free(settings);
-    }
-
-    if (chip != NULL) {
-        gpiod_chip_close(chip);
-    }
+    // cleanup
+    gpiod_line_request_set_value(request, led_offset, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_request_release(request);
+    gpiod_line_config_free(config);
+    gpiod_line_settings_free(settings);
+    gpiod_chip_close(chip);
 
     return 0;
 }
@@ -518,7 +502,7 @@ cleanup:
 
 </details>
 
-- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、ビルド後にRaspberry Pi上にて下記コマンドを実行する
 
 ```bash
 ./no2
@@ -530,17 +514,167 @@ cleanup:
 > 確認: 白スイッチを押すとRaspberry Pi基盤上の赤LEDが点灯し、CLI上に"LED点灯"と出力されることを確認する。
 
 ### 4.3 題材3:UART出力
+
+
+- **①作るもの:** 白スイッチを押した回数をパソコンに表示する
+- **②配線:** LED1(赤) = SW1(白スイッチ) = 24
+- **③プログラム:** 使うライブラリ gpiozero, pyserial
+
+<details>
+    <summary>no3.c</summary>
+
+```C
+#define _POSIX_C_SOURCE 200809L
+#define _DEFAULT_SOURCE
+
+#include <gpiod.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <signal.h>
+#include <string.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <termios.h>
+#include <time.h>
+
+#define CHIP_PATH   "/dev/gpiochip0"
+#define SW1         24U
+#define UART_PATH   "/dev/ttyS0"
+#define BAUDRATE    B115200
+
+#define MESSAGE     "ボタン押下検知"
+
+volatile sig_atomic_t stop_flag = 0;
+
+void signal_handler(int signal_no)
+{
+    (void)signal_no;
+    stop_flag = 1;
+}
+
+int main(void)
+{
+    struct gpiod_chip *chip = NULL;
+    struct gpiod_line_settings *settings = NULL;
+    struct gpiod_line_config *config = NULL;
+    struct gpiod_line_request *request = NULL;
+    struct gpiod_request_config *request_config = NULL;
+
+    struct termios uart_settings;
+    int uart_fd = -1;
+    int value;
+    int count = 0;
+    char data[32];
+    int data_size;
+
+    struct timespec delay = {0, 100000000L};
+
+    unsigned int sw1 = SW1;
+
+    signal(SIGINT, signal_handler);
+
+    /* UART初期化 */
+    uart_fd = open(UART_PATH, O_RDWR | O_NOCTTY);
+
+    tcgetattr(uart_fd, &uart_settings);
+
+    cfmakeraw(&uart_settings);
+    cfsetispeed(&uart_settings, BAUDRATE);
+    cfsetospeed(&uart_settings, BAUDRATE);
+
+    uart_settings.c_cflag |= (CLOCAL | CREAD);
+    uart_settings.c_cflag &= ~CSTOPB;
+    uart_settings.c_cflag &= ~PARENB;
+    uart_settings.c_cflag &= ~CSIZE;
+    uart_settings.c_cflag |= CS8;
+
+    tcsetattr(uart_fd, TCSANOW, &uart_settings);
+
+    tcflush(uart_fd, TCOFLUSH);
+    nanosleep(&(struct timespec){1, 0}, NULL);
+
+    /* GPIO初期化 */
+    chip = gpiod_chip_open(CHIP_PATH);
+    settings = gpiod_line_settings_new();
+    config = gpiod_line_config_new();
+
+    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_INPUT);
+    gpiod_line_settings_set_bias(settings, GPIOD_LINE_BIAS_PULL_DOWN);
+    gpiod_line_config_add_line_settings(config, &sw1, 1, settings);
+    request = gpiod_chip_request_lines(chip, request_config, config);
+
+    /* ボタン押下検知 */
+    while (!stop_flag) {
+        nanosleep(&delay, NULL);
+
+        value = gpiod_line_request_get_value(request, SW1);
+
+        if (value == 1) {
+            count++;
+
+            printf("%s\n", MESSAGE);
+
+            data_size = snprintf(data, sizeof(data),"Count:%d\r\n", count);
+
+            write(uart_fd, data, (size_t)data_size);
+
+            /* ボタンが離されるまで待機 */
+            while (!stop_flag) {
+                value = gpiod_line_request_get_value(request, SW1);
+
+                if (value == 0) {
+                    break;
+                }
+
+                nanosleep(&(struct timespec){0, 50000000L}, NULL);
+            }
+        }
+    }
+
+    printf("\n終了\n");
+
+    // clean up
+    gpiod_line_request_release(request);
+    gpiod_line_config_free(config);
+    gpiod_line_settings_free(settings);
+    gpiod_chip_close(chip);
+
+    if (uart_fd >= 0) {
+        close(uart_fd);
+    }
+
+    return 0;
+}
+
+```
+
+</details>
+
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、ビルド後にRaspberry Pi上にて下記コマンドを実行する
+
+```bash
+./no3
+```
+
+- **⑤動作確認:**
+
+![題材3_動作結果](images/no3_result.png)
+
+> 確認: 白スイッチを押すと、CLI上に"ボタン押下検知"と出力されることを確認する。シリアル通信のCLI上に押下回数が出力されることを確認する。
+
 ### 4.4 題材4:タイマ割込み
 
 - **①作るもの:** 一定の周期で赤LEDを点滅
 - **②配線:** LED1(赤) = 17
-- **③プログラム:** 使うライブラリ gpiozero
+- **③プログラム:** 使うライブラリ gpiod
 
 <details>
     <summary>no4.c</summary>
 
 ```C
-
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
@@ -634,30 +768,13 @@ int main(void)
 
     printf("\n動作を終了します。\n");
 
-cleanup:
-
-    // LEDを消灯
-    if (request != NULL) {
-        gpiod_line_request_set_value(
-            request, led_offset, GPIOD_LINE_VALUE_INACTIVE);
-        gpiod_line_request_release(request);
-    }
-
-    if (timer_fd >= 0) {
-        close(timer_fd);
-    }
-
-    if (config != NULL) {
-        gpiod_line_config_free(config);
-    }
-
-    if (settings != NULL) {
-        gpiod_line_settings_free(settings);
-    }
-
-    if (chip != NULL) {
-        gpiod_chip_close(chip);
-    }
+    // cleanup
+    gpiod_line_request_set_value(request, led_offset, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_request_release(request);
+    close(timer_fd);
+    gpiod_line_config_free(config);
+    gpiod_line_settings_free(settings);
+    gpiod_chip_close(chip);
 
     return 0;
 }
@@ -666,7 +783,7 @@ cleanup:
 
 </details>
 
-- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、ビルド後にRaspberry Pi上にて下記コマンドを実行する
 
 ```bash
 ./no4
