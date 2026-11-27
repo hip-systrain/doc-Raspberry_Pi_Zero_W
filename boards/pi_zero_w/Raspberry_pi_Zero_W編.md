@@ -1,4 +1,5 @@
 ## 9. マルチスレッド(pthread)
+
 本章では、pthreadを使用したマルチスレッド処理について説明する。
 
 pthreadの基本的な仕組みや関数の使い方を確認し、複数のスレッドで処理を実行するプログラムを作成する。
@@ -7,35 +8,40 @@ pthreadの基本的な仕組みや関数の使い方を確認し、複数のス�
 
 ### 9.1 pthreadとは
 
-pthread（POSIX Threads）とは、LinuxなどのOSで
-マルチスレッド処理を実現するための仕組みである。
+pthread（POSIX Threads）とは、LinuxなどのOSでマルチスレッド処理を実現するための仕組みである。
 
 #### プロセスとスレッドの違い
 
-プロセスとは、実行中のプログラムと、その実行に必要な
-メモリなどの資源を管理する単位である。
+プロセスとは、実行中のプログラムと、その実行に必要なメモリなどの資源を管理する単位である。
 
 スレッドとは、プロセス内で処理を実行する単位である。
-1つのプロセス内に複数のスレッドを作成することで、
-複数の処理を並行して実行できる。
 
-同じプロセス内のスレッドはメモリなどの資源を共有するため、
-スレッド間でデータを共有できる。
+1つのプロセス内に複数のスレッドを作成することで、複数の処理を並行して進めることができる。
 
-#### Raspberry Pi Zero Wでpthreadを使用する理由
+同じプロセス内のスレッドは、メモリなどの資源を共有する。そのため、スレッド間でデータを共有できる。
 
-Raspberry Pi Zero WではLinuxが動作している。
-Linuxはマルチスレッド処理に対応しており、
-C言語からpthreadを使用してスレッドを作成・管理できる。
+ただし、複数のスレッドが同じデータに同時にアクセスすると、意図しない結果になる場合がある。そのため、共有データを扱う際には排他制御が必要になる。
 
-本手順書では、FreeRTOSを使用せず、
-Linuxのpthreadを利用して複数の処理を並行して実行する。
+#### pthreadとFreeRTOSのタスクの違い
+
+pthreadとFreeRTOSのタスクは、どちらも複数の処理を実行するために使用するが、動作する環境や管理方法が異なる。
+
+| 項目 | pthread | FreeRTOSのタスク |
+| ---- | ---- | ---- |
+| 動作環境 | LinuxなどのOS上で動作する | FreeRTOS上で動作する |
+| 処理単位 | スレッド | タスク |
+| 管理方法 | OSによってスレッドが管理される | FreeRTOSのスケジューラによってタスクが管理される |
+| 使用例 | Linux上で複数の処理を実行する | 組み込みシステムで複数の処理を実行する |
+
+Raspberry Pi Zero WではLinuxが動作しているため、本手順書ではpthreadを使用する。
+
+FreeRTOSのタスクを実際に作成するのではなく、pthreadを使用して複数の処理を実行し、FreeRTOSのタスクとの違いを確認する。
 
 ### 9.2 pthreadを使用するプログラムの作成
 
-pthreadを使用すると、1つのプログラム内で複数のスレッドを作成し、それぞれのスレッドで処理を実行できる。
+pthreadを使用すると、1つのプログラム内に複数のスレッドを作成し、それぞれのスレッドで処理を実行できる。
 
-ここでは、pthreadを使用するための基本的な関数と、プログラムの作成・コンパイル方法を説明する。
+ここでは、pthreadの基本的な関数と、プログラムの作成・コンパイル方法を説明する。
 
 #### pthreadの基本的な関数
 
@@ -45,8 +51,25 @@ pthreadでは、主に次の関数を使用する。
 | ---- | ---- |
 | `pthread_create()` | 新しいスレッドを作成し、処理を開始する |
 | `pthread_join()` | 指定したスレッドの終了を待つ |
-| `pthread_mutex_lock()` | 排他制御を開始し、共有データへのアクセスを制限する |
-| `pthread_mutex_unlock()` | 排他制御を解除する |
+| `pthread_mutex_lock()` | mutexをロックし、共有データへの同時アクセスを防ぐ |
+| `pthread_mutex_unlock()` | mutexのロックを解除する |
+
+#### pthreadとFreeRTOSで使用する関数の違い
+
+FreeRTOSでは、pthreadと似た目的で使用する関数がある。ただし、すべての関数が同じ機能を持つわけではない。
+
+| 処理 | pthread | FreeRTOS |
+| ---- | ---- | ---- |
+| スレッド・タスクの作成 | `pthread_create()` | `xTaskCreate()` |
+| スレッドの終了待ち | `pthread_join()` | 直接対応する標準関数はない |
+| 待機処理 | `sleep()` | `vTaskDelay()` |
+| 排他制御 | `pthread_mutex_lock()`、`pthread_mutex_unlock()` | `xSemaphoreTake()`、`xSemaphoreGive()` |
+
+`pthread_join()`は、指定したスレッドが終了するまで待つ関数である。
+
+一方、FreeRTOSの`vTaskDelete()`はタスクを削除する関数であり、`pthread_join()`と同じ機能ではない。
+
+また、FreeRTOSではmutexをセマフォの機能を利用して扱う。関数名や使用方法は異なるが、共有データへの同時アクセスを防ぐという目的は共通している。
 
 #### pthreadを使用したプログラムの作成
 
@@ -55,10 +78,14 @@ pthreadを使用するには、`pthread.h`をインクルードする。
 ```c
 #include <stdio.h>
 #include <pthread.h>
+#include <string.h>
 
 /* スレッドで実行する関数 */
 void* thread_func(void* arg)
 {
+    /* 使用しない引数を明示する */
+    (void)arg;
+
     printf("スレッドで処理を実行します。\n");
 
     return NULL;
@@ -67,12 +94,13 @@ void* thread_func(void* arg)
 int main(void)
 {
     pthread_t thread;
+    int result;
 
     /* スレッドを作成する */
-    pthread_create(&thread, NULL, thread_func, NULL);
+    result = pthread_create(&thread, NULL, thread_func, NULL);
 
     /* スレッドの終了を待つ */
-    pthread_join(thread, NULL);
+    result = pthread_join(thread, NULL);
 
     printf("メインスレッドの処理を終了します。\n");
 
@@ -82,18 +110,23 @@ int main(void)
 
 このプログラムでは、`pthread_create()`で新しいスレッドを作成し、`thread_func()`を実行する。
 
+`pthread_create()`の第3引数には、スレッドで実行する関数を指定する。
+
 その後、`pthread_join()`で作成したスレッドの終了を待つ。
+
+スレッドの作成や終了待ちに失敗した場合は、エラーメッセージを表示してプログラムを終了する。
 
 #### コンパイル方法
 
 pthreadを使用するプログラムは、コンパイル時に`-pthread`オプションを指定する。
 
 ```bash
-gcc -g -pthread -o test test.c　-lgpiod
+gcc -g -pthread -o thread_test thread_test.c
 ```
 
 | オプション | 役割 |
 | ---- | ---- |
+| `-g` | デバッグ情報を生成する |
 | `-pthread` | pthreadを使用するためのコンパイル・リンク設定を行う |
 | `-o thread_test` | 出力する実行ファイル名を指定する |
 
@@ -102,6 +135,7 @@ gcc -g -pthread -o test test.c　-lgpiod
 ```bash
 ./thread_test
 ```
+
 ### 9.3 題材5：複数タスク
 
 #### プログラムの説明
