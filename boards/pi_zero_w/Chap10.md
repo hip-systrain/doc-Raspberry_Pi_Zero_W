@@ -34,6 +34,174 @@ sudo apt install -y python3-gpiozero python3-serial
 ![ライブラリインストール](images/library.png)
 > 確認: 上記実行結果のようにエラーが表示されず、実行結果が表示されていれば、問題なし。
 
+#### 10.1.2. サンプルプログラムの実行
+
+[IOT教材HATのサンプルプログラム](https://akizukidenshi.com/goodsaffix/lhat3_20230326.zip)をダウンロードし、ZIPファイルを解凍する。
+解凍したフォルダ```lhat3_20230326\lhat3```の
+WinSCPでRaspberry Piに転送する。
+![winscp転送](images/sample_tensou.png)
+
+- buzzer.py (ブザーのテスト)
+- lcdtest.py (LCDのテスト ※同一ディレクトリにdisplay.pyが入ってないと動かないので確認すること)
+- ledtest.py (LEDのテスト)
+- sw1test.py (SW1※白スイッチのテスト)
+
+ただし、buzzer.pyだけそのままだと動作しないため、下記のように変更を加える。
+<details>
+    <summary>buzzer.py</summary>
+
+```python
+# coding: UTF-8
+import RPi.GPIO as GPIO
+from time import sleep
+import sys
+
+# 出力ピン番号をBCMで指定する
+pwmpin = 23  # ブザー
+LED1 = 17  # 赤のLED
+LED2 = 27  # 黄のLED
+LED3 = 22  # 緑のLED
+
+# 音階の周波数指定　A4=440Hz基準
+A3 = 220
+B3 = 246
+C3 = 261
+D3 = 293
+E3 = 329
+F3 = 349
+G3 = 392
+A4 = 440
+B4 = 493
+C4 = 523
+# Q = 0.001 #ここを削除する pin23.ChangeFrequency(Q) ValueErrorになる為。
+
+soundpitch = (60.0 / 80.0) - 0.1
+bercount = 4
+offtime = 0.1 / bercount
+
+soundoff = 0.1 # 音の切れ目の時間指定
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setwarnings(False)
+GPIO.setup(pwmpin,GPIO.OUT)
+GPIO.setup(LED1,GPIO.OUT)
+GPIO.setup(LED2,GPIO.OUT)
+GPIO.setup(LED3,GPIO.OUT)
+pin23 = GPIO.PWM(pwmpin,10)
+
+def LEDcheck(LED1,LED2,LED3):
+    print("LED TEST")
+    GPIO.output(LED1,1)
+    GPIO.output(LED2,1)
+    GPIO.output(LED3,1)
+    sleep(1)
+    GPIO.output(LED1,0)
+    GPIO.output(LED2,0)
+    GPIO.output(LED3,0)
+
+# START
+print("Start check1.py")
+print("(Ctrl-C to EXIT)")
+print()
+
+try:
+    # LEDのテスト
+    LEDcheck(LED1,LED2,LED3)
+    # ブザーのテスト
+    print("Buzzer TEST")
+    pin23.start(50) #duty比
+    GPIO.output(pwmpin,GPIO.HIGH)
+    # 第１小節
+    pin23.ChangeFrequency(G3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(E3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(E3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(E3)
+    sleep(soundpitch)
+    GPIO.output(LED1,1)
+    # 第２小節
+    pin23.ChangeFrequency(F3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(D3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(D3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(D3)
+    sleep(soundpitch)
+    GPIO.output(LED2,1)
+    # 第３小節
+    pin23.ChangeFrequency(C3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(D3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(E3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(F3)
+    sleep(soundpitch)
+    GPIO.output(LED3,1)
+    # 第４小節
+    pin23.ChangeFrequency(G3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(G3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(G3)
+    sleep(soundpitch)
+    pin23.ChangeFrequency(G3)
+    sleep(soundpitch)
+    pin23.stop()                # ここを pin23.stop() に書き換える
+#   pin23.ChangeFrequency(Q)    # ここを削除する
+#   sleep(soundpitch)           # ここを削除する
+    GPIO.output(pwmpin,GPIO.LOW)
+    GPIO.output(LED1,0)
+    GPIO.output(LED2,0)
+    GPIO.output(LED3,0)
+    # LEDのテスト
+    sleep(0.3)
+    LEDcheck(LED1,LED2,LED3)
+# CTRL-Cのキー入力により割り込み終了する処理
+except KeyboardInterrupt:
+    del pin23                  #追加
+    GPIO.cleanup()
+    sys.exit()
+# クリーンアップして終了
+del pin23                      #追加
+GPIO.cleanup()
+```
+
+</details>
+
+転送が完了したら、Raspberry Pi上でコマンドを実行する
+
+``` bash
+python buzzer.py
+```
+
+![ブザーテスト](images/buzzertest.png)
+
+> 確認:LEDとブザーが点灯することを確認する。
+
+他のスクリプトもそれぞれ実行する
+
+``` bash
+python lcdtest.py
+```
+
+> 確認: LCDのバックライトが点灯すること、LCDに"Welcome IoTLHAT"と表示されることを確認する。
+
+``` bash
+python ledtest.py
+```
+
+> 確認: LED1(赤),LED2(黄),LED3(緑)が点灯することを確認する。
+
+``` bash
+python sw1test.py
+```
+
+> 確認: SW1(白スイッチ)が押されるたびにCLI上に"Trigger SW Detected!"と表示されることを確認する。
+
 ### 10.2.0 Pythonでの実装と実行
 
 ここでは、第4,9章でC言語を使用して書かれたプログラムをPythonで書くことになっている。
@@ -48,7 +216,7 @@ sudo apt install -y python3-gpiozero python3-serial
 
 C言語で作成したプログラム同様、Windows上でプログラムを作成し、SCP(WinSCP)を使用してRaspberry Pi上へ転送。 Raspberry Pi OS上でプログラムを実行する流れとなっている。
 
-### 10.2.1. 題材1:赤LEDを0.5秒ごとに点滅
+#### 10.2.1. 題材1:赤LEDを0.5秒ごとに点滅
 
 - **①作るもの:** 赤LEDを0.5秒間隔で点滅させる。
 - **②配線:** LED1(赤) = BCM 17
@@ -77,6 +245,7 @@ try:
 finally:
    r_led.close()
 ```
+
 </details>
 
 - **④実行:**
@@ -91,7 +260,7 @@ python no1.py
 - **⑤動作確認:**
 ![題材1_動作結果](images/no1_result.png)
 
-### 10.2.2. 題材2:白スイッチを押している間だけ赤LEDを点灯
+#### 10.2.2. 題材2:白スイッチを押している間だけ赤LEDを点灯
 
 - **①作るもの:** 白スイッチを押している間だけ赤LEDを点灯
 - **②配線:** LED1(赤) = BCM 17, SW1(白スイッチ) = 24
@@ -153,7 +322,7 @@ python no2.py
 
 > 確認: 白スイッチを押すとRaspberry Pi基盤上の赤LEDが点灯し、CLI上に"LED点灯"と出力されることを確認する。
 
-### 10.2.3. 題材3:白スイッチを押した回数をパソコンに表示
+#### 10.2.3. 題材3:白スイッチを押した回数をパソコンに表示
 
 - **①作るもの:** 白スイッチを押した回数をパソコンに表示する
 - **②配線:** LED1(赤) = SW1(白スイッチ) = 24
@@ -230,7 +399,7 @@ python no3.py
 
 > 確認: 白スイッチを押すと、CLI上に"ボタン押下検知"と出力されることを確認する。シリアル通信のCLI上に押下回数が出力されることを確認する。
 
-### 10.2.4. 題材4:一定の周期で赤LEDを点滅
+#### 10.2.4. 題材4:一定の周期で赤LEDを点滅
 
 - **①作るもの:** 一定の周期で赤LEDを点滅
 - **②配線:** LED1(赤) = 17
@@ -297,7 +466,7 @@ python no4.py
 
 > 確認: 一定周期で赤LEDが点灯できていることを確認する。
 
-### 10.2.5. 題材5:LEDとスイッチを別々のスレッドで動かす
+#### 10.2.5. 題材5:LEDとスイッチを別々のスレッドで動かす
 
 - **①作るもの:** LEDとスイッチを別々のスレッドで動かす
 - **②配線:** LED1(赤) = 17, スイッチ1(SW1) = 24
@@ -379,7 +548,7 @@ python no5.py
 
 > 確認: 一定周期で赤LEDが点滅できていることを確認する。
 
-### 10.2.6. 題材6:白スイッチでLEDの点滅の速さを切り替える
+#### 10.2.6. 題材6:白スイッチでLEDの点滅の速さを切り替える
 
 - **①作るもの:** 白スイッチでLEDの点滅の速さを切り替える
 - **②配線:** LED1(赤) = 17, スイッチ1(SW1) = 24
