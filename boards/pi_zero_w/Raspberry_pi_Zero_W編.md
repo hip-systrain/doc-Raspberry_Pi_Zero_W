@@ -76,19 +76,15 @@
 ![任意のエクスプローラー](../pi_zero_w/images/z2_exp.png)<br>
 
 3. エクスプローラーのファイル一覧の空いている場所を右クリックし、タブを開く。<br>
-
 ![タブ](../pi_zero_w/images/z2_file_tab.png)<br>
 
 4. 新規作成を選択する。<br>
-
 ![新規作成](../pi_zero_w/images/z2_new_file.png)<br>
 
 5. フォルダーを選択する。<br>
-
 ![フォルダー](../pi_zero_w/images/z2_new_file_create.png)<br>
 
 6. 名前を `sample` でフォルダを作成する。<br>
-
 ![sampleフォルダ](../pi_zero_w/images/z2_sample_file.png)<br>
 
 #### VS Code で作業フォルダを開く
@@ -101,27 +97,23 @@
 3. [フォルダーを開く]を選択する。<br>
 ![](../pi_zero_w/images/z2_vscode_folder.png)<br>
 
-3. フォルダー選択画面で `sample` フォルダを選択する。
-<br>
+4. フォルダー選択画面で `sample` フォルダを選択する。<br>
 ![](../pi_zero_w/images/z2_vscode_folder_open.png)<br>
 
-4. [フォルダーの選択]をクリックする。
-<br>
-![](../pi_zero_w/images/z2_vscode_folder_open_click.png)
+5. [フォルダーの選択]をクリックする。<br>
+![](../pi_zero_w/images/z2_vscode_folder_open_click.png)<br>
 　
    >　確認： VS Code のエクスプローラーに `sample` フォルダが表示されれば成功。<br><br>
    ![](../pi_zero_w/images//z2_check_vscode_folder.png)
-
 <br>
 
 #### Makefile と ソースファイル(.c)を作成する
 
 1. VS Code のエクスプローラーで、作業フォルダ名の横にある[新しいファイル]をクリックする。<br>
-![](../pi_zero_w/images/z2_vscode_file_create.png)
-<br>
+![](../pi_zero_w/images/z2_vscode_file_create.png)<br>
 
 2. ファイル名を `Makefile` で作成する。<br>※ファイル名は大文字の `M` で始め、拡張子は不要とする。<br>
-![](../pi_zero_w/images/z2_vscode_makefile_create.png)
+![](../pi_zero_w/images/z2_vscode_makefile_create.png)<br>
 
 3.  `Makefile` の編集画面に、次の内容を記述し、保存する。
 
@@ -146,20 +138,18 @@
       ```
 
       >　確認： `Makefile` の内容が次のようになっていれば成功。<br>
-      ![](../pi_zero_w/images/z2_check_vscode_makefile.png)
+      ![](../pi_zero_w/images/z2_check_vscode_makefile.png)<br>
 
 <br>
 
 4. VS Code のエクスプローラーで、再度[新しいファイル]をクリックする。<br>
-<br>
-![](../pi_zero_w/images/z2_vscode_cfile_create.png)
+![](../pi_zero_w/images/z2_vscode_cfile_create.png)<br>
 
-5. ファイル名を `sample.c` で作成する。<br>※プログラムは後で記述するため、この時点では空のファイルでよい。
-<br>
-![](../pi_zero_w/images/z2_vscode_c_file_create.png)
+5. ファイル名を `sample.c` で作成する。<br>※プログラムは後で記述するため、この時点では空のファイルでよい。<br>
+![](../pi_zero_w/images/z2_vscode_c_file_create.png)<br>
 
    >　確認： 作業フォルダの直下に `Makefile` と `sample.c` が並んで表示されていれば成功。<br><br>
-   ![](../pi_zero_w/images/z2_check_vscode_files.png)
+   ![](../pi_zero_w/images/z2_check_vscode_files.png)<br>
 
 
 ####  WinSCP で Raspberry Pi Zero W に接続する
@@ -167,87 +157,79 @@
 1. 開発 PC で WinSCP を起動する。<br>
 
 2. ログイン画面で[新しいサイト]を選択する。<br>
-![](../pi_zero_w/images/z2_winscp_login.png)
+![](../pi_zero_w/images/z2_winscp_login.png)<br>
 
 3. セッションの[転送プロトコル]で `SCP` を選択する。<br>
-![](../pi_zero_w/images/z2_winscp_session.png)
+![](../pi_zero_w/images/z2_winscp_session.png)<br>
 
-4. [ホスト名]に、**1.1.1 Raspberry Pi Imager のインストール**で設定した `hostname` を設定する。
-<br>
-![](../pi_zero_w/images/z2_winscp_hostname.png)
+4. [ホスト名]に、**1.1.1 Raspberry Pi Imager のインストール**で設定した `hostname` を設定する。<br>
+![](../pi_zero_w/images/z2_winscp_hostname.png)<br>
 
-5. [ポート番号]に、標準のSSHポートである `22` を設定する。
-<br>
-![](../pi_zero_w/images/z2_winscp_poot.png)
+5. [ポート番号]に、標準のSSHポートである `22` を設定する。<br>
+![](../pi_zero_w/images/z2_winscp_poot.png)<br>
 
-6. [ユーザー名]に、**1.1.1 Raspberry Pi Imager のインストール**で設定した `username` を設定する。
-<br>
-![](../pi_zero_w/images/z2_winscp_username.png)
+6. [ユーザー名]に、**1.1.1 Raspberry Pi Imager のインストール**で設定した `username` を設定する。<br>
+![](../pi_zero_w/images/z2_winscp_username.png)<br>
 
 7. [保存]をクリックする。
-<br>
-![](../pi_zero_w/images/z2_winscp_save.png)
+<br>![](../pi_zero_w/images/z2_winscp_save.png)<br>
 
 8. [セッションの保存名]を入力する。<br>※今回の手順では、 `Raspberry Pi Zero W` と入力する。
-<br>
-![](../pi_zero_w/images/z2_winscp_savename.png)
+<br>![](../pi_zero_w/images/z2_winscp_savename.png)<br>
 
-9. [OK]をクリックしてセッションを保存する。
-<br>
-![](../pi_zero_w/images/z2_winscp_session_save.png)
+9. [OK]をクリックしてセッションを保存する。<br>
+![](../pi_zero_w/images/z2_winscp_session_save.png)<br>
 
    >　確認： ログイン画面の左側の一覧から、保存した `Raspberry Pi Zero W` が表示されていれば成功。<br><br>
-   ![](../pi_zero_w/images//z2_check_winscp_session.png)
+   ![](../pi_zero_w/images//z2_check_winscp_session.png)<br>
 
 10. ログイン画面の左側の一覧から、保存した `Raspberry Pi Zero W` を選択する。
-<br>
-![](../pi_zero_w/images/z2_winscp_login_raspizero.png)
+<br>![](../pi_zero_w/images/z2_winscp_login_raspizero.png)<br>
 
 11. [ログイン]をクリックする。<br>
-※パスワードの入力を求められた場合は、**1.1.1 Raspberry Pi Imager のインストール**で設定したログインユーザーのパスワードを入力する。
-<br>
-![](../pi_zero_w/images/z2_winscp_login_click.png)
+※パスワードの入力を求められた場合は、**1.1.1 Raspberry Pi Imager のインストール**で設定したログインユーザーのパスワードを入力する。<br>
+![](../pi_zero_w/images/z2_winscp_login_click.png)<br>
 
       >　確認：  WinSCP のリモート側(右側)に Raspberry Pi Zero W のファイル一覧が表示されれば接続成功。<br>
-      ![](../pi_zero_w/images/z2_check_winscp.png)
+      ![](../pi_zero_w/images/z2_check_winscp.png)<br>
 
 ####  作業フォルダを転送する
 1. WinSCP のリモート側で、ログインユーザーのホームフォルダを表示する。今回の手順では、ユーザー名を `pi` 、ホームフォルダを `/home/pi` とする。<br>
  別の場所が表示されている場合は、リモート側の一覧をクリックして `Ctrl` + `O` を押し、表示されたダイアログにホームフォルダのパスを入力して開く。<br>
-![](../pi_zero_w/images/z2_winscp_pi.png)
+![](../pi_zero_w/images/z2_winscp_pi.png)<br>
 
 <br>
 
 2. 開発 PC のエクスプローラーで、`sample` フォルダが見えるように、その 1 つ上のフォルダを表示する。<br>
-![](../pi_zero_w/images/z2_winscp_samplefolder.png)
+![](../pi_zero_w/images/z2_winscp_samplefolder.png)<br>
 
 3. エクスプローラーから `sample` フォルダをドラッグし、WinSCP のリモート側のファイル一覧の空いている場所にドロップする。<br>
-![](../pi_zero_w/images/z2_winscp_sample_folder_cd.png)
+![](../pi_zero_w/images/z2_winscp_sample_folder_cd.png)<br>
       >　注意： 別のフォルダのアイコンに重ねると、そのフォルダが転送先になる。転送先に同名のファイルがある場合は、上書きするファイルを確認する。<br>
 
 
 
 
 4. アップロード画面の「OK」を選択し、転送を開始する。<br>
-![](../pi_zero_w/images/z2_winscp_forward_OK.png)
+![](../pi_zero_w/images/z2_winscp_forward_OK.png)<br>
 
-   >　確認： 転送先のリモートディレクトリのパスがあっているかを確認。<br>![](../pi_zero_w/images/z2_winscp_forward.png)
+   >　確認： 転送先のリモートディレクトリのパスがあっているかを確認。<br>
+   ![](../pi_zero_w/images/z2_winscp_forward.png)<br>
 
 5. 転送が終わったら、WinSCP のリモート側に sample フォルダが表示されたことを確認する。<br>
-![](../pi_zero_w/images/z2_check_winscp_sample_folder.png)
+![](../pi_zero_w/images/z2_check_winscp_sample_folder.png)<br>
       >　確認： Raspberry Pi Zero W 側の `sample` フォルダに `Makefile` と `sample.c` の両方が表示されれば、新規プロジェクトの作成は完了。<br><br>![](../pi_zero_w/images/z2_check_winscp_file.png)
 
 ####  Raspberry Pi Zero W 側で転送したファイルを確認する
 
 1. WinSCP のリモート側で、転送した `sample` フォルダを開く。<br>
-![](../pi_zero_w/images//z2_winscp_remote_folder.png)
-<br>
+![](../pi_zero_w/images//z2_winscp_remote_folder.png)<br>
 
 2. 開発 PC のエクスプローラーで `sample` フォルダを開く。<br>
-![](../pi_zero_w/images/z2_winscp_pc_folder.png)
+![](../pi_zero_w/images/z2_winscp_pc_folder.png)<br>
 
 3. 開発 PC と WinSCP のリモート側のファイル一覧を見比べる。<br>
-![](../pi_zero_w/images/z2_check_winscp_sample_files.png)
+![](../pi_zero_w/images/z2_check_winscp_sample_files.png)<br>
 
 
 
@@ -270,9 +252,150 @@
 
 ## 4. コーディング・ビルド・書込み(RTOSなし)
 
-<!-- 各題材の節は「作るもの → 配線 → プログラム → ビルドと書込み → 動作確認」の順で書く -->
+## 4. コーディング・ビルド・書込み(RTOSなし)
 
-### 4.1 題材1:LED点滅
+本章では、Raspberry Pi Zero W と IoT 学習 HAT を使い、「LED 点滅」「ボタン入力」「UART 出力」「タイマ割込み」の 4 つの題材に取り組む。
+
+**各題材に共通する作業の流れ**
+
+第 3 章で用意した作業フォルダと `Makefile` を使う。ソースを修正したときは、保存したファイルを再転送してからビルドする。
+
+```mermaid
+flowchart TD
+    subgraph pc["開発 PC"]
+        edit["VS Code で C ソースを作成・保存"]
+        send["開発 PC のターミナルから scp で転送"]
+        edit --> send
+    end
+    subgraph pi["Raspberry Pi Zero W"]
+        build["Raspberry Pi Zero W のターミナルでビルド"]
+        run["実行ファイルを起動"]
+        build --> run
+    end
+    send --> build
+    run --> check["LED や受信画面で動作を確認"]
+    check -->|ソースを修正するとき| edit
+```
+
+
+### 4.1 題材1: LED点滅
+
+事前準備
+
+#### ① 作るもの
+
+Raspberry Pi Zero W でプログラムを実行すると、IoT 学習 HAT の赤 LED が 0.5 秒間の点灯と 0.5 秒間の消灯を繰り返す。
+
+#### ② 配線
+
+第 1 章で取り付けた HAT を使用する。赤 LED は GPIO17（物理ピン 11）につながっており、研修用 HAT では High で点灯する。
+
+```mermaid
+flowchart LR
+    gpio["GPIO17（物理ピン 11・出力）"] --> led["IoT 学習 HAT の赤 LED"]
+```
+
+#### ③ プログラム
+
+1. **Raspberry Pi Zero W のターミナル**で `pkg-config --modversion libgpiod` を実行する。HAT の GPIO 操作に使う `libgpiod` のバージョンを調べる。
+
+   表示が `2.` で始まることを確認する。`1.` で始まる場合やエラーが表示される場合は、第 1 章の使用環境を確認する。
+
+2. 開発 PC の VS Code で、3.1 節で作成した作業フォルダを開く。次のコードを入力し、作業フォルダの直下に `led_blink.c` として保存する。`blink_led` で、`nanosleep` による 0.5 秒の待機をはさみながら LED の出力を切り替える。
+
+   ```c
+    #define _POSIX_C_SOURCE 200809L
+    #include <gpiod.h>
+    #include <stdlib.h>
+    #include <time.h>
+
+    #define CHIP_PATH "/dev/gpiochip0"
+    #define LED_PIN 17U
+    #define BLINK_COUNT 5
+    #define HALF_SECOND_NS 500000000L
+    int main(void) {
+        const unsigned int offset = LED_PIN;
+        const struct timespec interval = { .tv_sec = 0, .tv_nsec = HALF_SECOND_NS };
+        struct gpiod_chip *chip = gpiod_chip_open(CHIP_PATH);
+        if (chip == NULL) {
+            return EXIT_FAILURE;
+        }
+    struct gpiod_line_settings *settings = gpiod_line_settings_new();
+    struct gpiod_line_config *config = gpiod_line_config_new();
+    int result = EXIT_FAILURE;
+
+    // GPIO17 を出力にし、使い始めたときに赤 LED を点灯する。
+    if (settings == NULL || config == NULL) {
+        goto cleanup;
+    }
+    if (gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT) < 0 ||
+        gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_ACTIVE) < 0 ||
+        gpiod_line_config_add_line_settings(config, &offset, 1U, settings) < 0) {
+        goto cleanup;
+    }
+    struct gpiod_line_request *request = gpiod_chip_request_lines(chip, NULL, config);
+    if (request == NULL) {
+        goto cleanup;
+    }
+
+    // 点灯と消灯を 0.5 秒ずつ、5 回繰り返す。
+    result = EXIT_SUCCESS;
+    for (int count = 0; count < BLINK_COUNT; ++count) {
+        if (gpiod_line_request_set_value(request, LED_PIN, GPIOD_LINE_VALUE_ACTIVE) < 0) {
+            result = EXIT_FAILURE;
+            break;
+        }
+
+        const int on_wait = nanosleep(&interval, NULL);
+        const int off_result = gpiod_line_request_set_value(request, LED_PIN,
+        GPIOD_LINE_VALUE_INACTIVE);
+        if (on_wait < 0 || off_result < 0 || nanosleep(&interval, NULL) < 0) {
+            result = EXIT_FAILURE;
+            break;
+            }
+        }
+    cleanup:
+        if (config != NULL) {
+            gpiod_line_config_free(config);
+        }
+        if (settings != NULL) {
+            gpiod_line_settings_free(settings);
+        }
+        gpiod_chip_close(chip);
+        return result;
+    }
+   ```
+
+#### ④ ビルドと書込み
+
+1. 作業フォルダの 1 つ上のフォルダを開いた **開発 PC のターミナル**で、`led_blink.c` を Raspberry Pi Zero W に転送する。
+
+   ```powershell
+   scp ".\フォルダ名\led_blink.c" "ユーザー名@ホスト名:フォルダ名/"
+   ```
+
+2. **Raspberry Pi Zero W のターミナル**で、転送先の作業フォルダに移動する。
+
+   ```bash
+   cd ~/"フォルダ名"
+   ```
+
+3. 同じターミナルでビルドする。コマンドがエラーなく終わり、実行ファイル `led_blink` が表示されればビルド完了。
+
+   ```bash
+   make led_blink && ls -l led_blink
+   ```
+
+4. **Raspberry Pi Zero W のターミナル**で、実行ファイルを起動する。末尾の `high` は、赤 LED が High で点灯する設定である。
+
+   ```bash
+   ./led_blink /dev/gpiochip0 high
+   ```
+
+#### ⑤ 動作確認
+Tera Term の SSH 画面で ./led_blink を実行する。赤 LED が約 0.5 秒の点灯と約 0.5 秒の消灯を 5 回繰り返し、最後に消灯してコマンドの入力待ちに戻れば成功。<br>
+
+
 ### 4.2 題材2:ボタン入力
 ### 4.3 題材3:UART出力
 ### 4.4 題材4:タイマ割込み
