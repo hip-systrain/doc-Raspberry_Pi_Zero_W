@@ -406,7 +406,6 @@ Tera Term の SSH 画面で ./led_blink を実行する。赤 LED が約 0.5 秒
 
 ```C
 
-
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdio.h>
@@ -445,7 +444,6 @@ int main(void)
 
     bool current_state;
     bool last_state = false;
-    int result = EXIT_FAILURE;
 
     // LEDを出力に設定
     gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT);
@@ -465,18 +463,11 @@ int main(void)
     printf("SW1を押す:LED1(赤)点灯\n");
     printf("Ctrl+C:プログラム終了\n");
 
-    result = EXIT_SUCCESS;
-
     while (!stop_flag) {
 
         // SWの状態を取得
         int sw_value = gpiod_line_request_get_value(
             request, sw_offset);
-
-        if (sw_value < 0) {
-            result = EXIT_FAILURE;
-            break;
-        }
 
         current_state = (sw_value == GPIOD_LINE_VALUE_ACTIVE);
 
@@ -485,11 +476,7 @@ int main(void)
             ? GPIOD_LINE_VALUE_ACTIVE
             : GPIOD_LINE_VALUE_INACTIVE;
 
-        if (gpiod_line_request_set_value(
-                request, led_offset, led_value) < 0) {
-            result = EXIT_FAILURE;
-            break;
-        }
+        gpiod_line_request_set_value(request, led_offset, led_value);
 
         // OFFからONに変化した場合
         if (current_state && !last_state) {
@@ -499,10 +486,7 @@ int main(void)
         last_state = current_state;
 
         // 50ms待機
-        if (nanosleep(&interval, NULL) < 0) {
-            result = EXIT_FAILURE;
-            break;
-        }
+        nanosleep(&interval, NULL)
     }
 
     printf("\n動作を終了します。\n");
@@ -527,7 +511,7 @@ cleanup:
         gpiod_chip_close(chip);
     }
 
-    return result;
+    return 0;
 }
 
 ```
@@ -537,7 +521,7 @@ cleanup:
 - **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
 
 ```bash
-python no2.py
+./no2
 ```
 
 - **⑤動作確認:**
@@ -545,10 +529,155 @@ python no2.py
 
 > 確認: 白スイッチを押すとRaspberry Pi基盤上の赤LEDが点灯し、CLI上に"LED点灯"と出力されることを確認する。
 
-
-
 ### 4.3 題材3:UART出力
 ### 4.4 題材4:タイマ割込み
+
+- **①作るもの:** 一定の周期で赤LEDを点滅
+- **②配線:** LED1(赤) = 17
+- **③プログラム:** 使うライブラリ gpiozero
+
+<details>
+    <summary>no4.c</summary>
+
+```C
+
+#define _POSIX_C_SOURCE 200809L
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <errno.h>
+#include <time.h>
+#include <sys/timerfd.h>
+#include <gpiod.h>
+
+#define CHIP_PATH       "/dev/gpiochip0"
+#define LED1            17U
+#define TIMER_SEC       0
+#define TIMER_NSEC      500000000L
+
+static volatile sig_atomic_t stop_flag = 0;
+
+void signal_handler(int signal_number)
+{
+    (void)signal_number;
+    stop_flag = 1;
+}
+
+int main(void)
+{
+    const unsigned int led_offset = LED1;
+    const struct timespec interval = {
+        .tv_sec = TIMER_SEC,
+        .tv_nsec = TIMER_NSEC
+    };
+
+    const struct itimerspec timer = {
+        .it_value = {
+            .tv_sec = TIMER_SEC,
+            .tv_nsec = TIMER_NSEC
+        },
+        .it_interval = {
+            .tv_sec = TIMER_SEC,
+            .tv_nsec = TIMER_NSEC
+        }
+    };
+
+    struct gpiod_chip *chip = gpiod_chip_open(CHIP_PATH);
+    struct gpiod_line_settings *settings = gpiod_line_settings_new();
+    struct gpiod_line_config *config = gpiod_line_config_new();
+    struct gpiod_line_request *request = NULL;
+
+    bool led_state = false;
+    uint64_t total;
+    int timer_fd = -1;
+
+    (void)interval;
+
+    // LEDを出力に設定し、初期状態を消灯にする
+    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT);
+    gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_config_add_line_settings(config, &led_offset, 1U, settings);
+
+    // GPIOラインを要求
+    request = gpiod_chip_request_lines(chip, NULL, config);
+
+    // タイマーを作成
+    timer_fd = timerfd_create(CLOCK_MONOTONIC, 0);
+
+    // 初回0.5秒、以降0.5秒間隔でタイマーを設定
+    timerfd_settime(timer_fd, 0, &timer, NULL);
+
+    signal(SIGINT, signal_handler);
+
+    printf("Ctrl+C:プログラム終了\n");
+
+    while (!stop_flag) {
+
+        // タイマー通知を読み取る
+        ssize_t read_size = read(timer_fd, &total, sizeof(total));
+
+        // タイマー通知があればLEDを反転
+        if (total != 0U) {
+            led_state = !led_state;
+
+            int led_value = led_state
+                ? GPIOD_LINE_VALUE_ACTIVE
+                : GPIOD_LINE_VALUE_INACTIVE;
+
+            gpiod_line_request_set_value(request, led_offset, led_value);
+        }
+    }
+
+    printf("\n動作を終了します。\n");
+
+cleanup:
+
+    // LEDを消灯
+    if (request != NULL) {
+        gpiod_line_request_set_value(
+            request, led_offset, GPIOD_LINE_VALUE_INACTIVE);
+        gpiod_line_request_release(request);
+    }
+
+    if (timer_fd >= 0) {
+        close(timer_fd);
+    }
+
+    if (config != NULL) {
+        gpiod_line_config_free(config);
+    }
+
+    if (settings != NULL) {
+        gpiod_line_settings_free(settings);
+    }
+
+    if (chip != NULL) {
+        gpiod_chip_close(chip);
+    }
+
+    return 0;
+}
+
+```
+
+</details>
+
+- **④実行:** [題材1](#1021-題材1赤ledを05秒ごとに点滅)と同様にプログラムをRaspberry Pi上に転送し、Raspberry Pi上にて下記コマンドを実行する
+
+```bash
+./no4
+```
+
+- **⑤動作確認:**
+
+![題材4_動作結果](images/no4_result.png)
+
+> 確認: 一定周期で赤LEDが点灯できていることを確認する。
+
 
 ## 5. コーディング・ビルド・書込み(FreeRTOS)
 
