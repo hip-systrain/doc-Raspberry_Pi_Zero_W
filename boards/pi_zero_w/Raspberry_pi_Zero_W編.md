@@ -120,7 +120,7 @@ int main(void)
 pthreadを使用するプログラムは、コンパイル時に`-pthread`オプションを指定する。
 
 ```bash
-gcc -g -pthread -o thread_test thread_test.c
+gcc -g -pthread -o thread_test thread_test.c -lgpiod
 ```
 
 | オプション | 役割 |
