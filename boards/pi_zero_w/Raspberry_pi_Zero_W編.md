@@ -12,3 +12,5 @@
 | シリアル接続の Tera Term 画面に何も表示されない | Raspberry Pi Zero W のシリアルポートやシリアルログインが無効になっているため | SSH 接続で Raspberry Pi Zero W に接続し、`sudo raspi-config` を実行する。`Interface Options` → `Serial Port` を選択し、シリアルログインとシリアルポートの設定を有効にする。設定後、Raspberry Pi Zero W を再起動する。 |
 | シリアル接続で `login:` は表示されるが、ユーザー名を入力できない | PC から Raspberry Pi Zero W への送信経路が接続されていないため。 | Raspberry Pi Zero W の GPIO15 RXD（物理ピン10）と、CH340E の TXD を接続する。Raspberry Pi Zero W の GPIO14 TXD（物理ピン8）と CH340E の RXD、GND 同士も接続する。 |
 | Tera Term で新しい接続を作成すると、シリアルを選択できない | 別のアプリケーションが使用しているため。 | Tera Term の接続をすべて閉じてから再度接続する。 |
+| HAT 用のサンプルプログラム lhat3_20230326\lhat3\buzzer.py を実行すると、エラーが発生して途中で止まる。 | 休符相当の周波数指定（Q = 0.001 など）に問題があり、ChangeFrequency でエラーになる。 | lhat5_20240520\lhat5\buzzer5.py を使う（または休符箇所を pin23.stop() に変更する）。 |
+| ブザー／PWM プログラムの終了時に TypeError: unsupported operand type(s) for &: 'NoneType' and 'int' が出る。 | GPIO.cleanup() の後に PWM オブジェクトが破棄され、解放済みリソースへアクセスしている。 | GPIO.cleanup() を呼ぶ前に del pin23 を実行する。 |
