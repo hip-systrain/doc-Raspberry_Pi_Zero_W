@@ -409,7 +409,6 @@ Tera Term の SSH 画面で ./led_blink を実行する。赤 LED が約 0.5 秒
 #include <stdio.h>
 #include <stdbool.h>
 #include <signal.h>
-#include <stdlib.h>
 #include <time.h>
 #include <gpiod.h>
 
@@ -483,7 +482,7 @@ int main(void)
         last_state = current_state;
 
         // 50ms待機
-        nanosleep(&interval, NULL)
+        nanosleep(&interval, NULL);
     }
 
     printf("\n動作を終了します。\n");
@@ -529,12 +528,7 @@ int main(void)
 
 #include <gpiod.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <signal.h>
-#include <string.h>
-#include <errno.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
@@ -557,6 +551,8 @@ void signal_handler(int signal_no)
 
 int main(void)
 {
+    unsigned int sw1 = SW1;
+
     struct gpiod_chip *chip = NULL;
     struct gpiod_line_settings *settings = NULL;
     struct gpiod_line_config *config = NULL;
@@ -571,8 +567,6 @@ int main(void)
     int data_size;
 
     struct timespec delay = {0, 100000000L};
-
-    unsigned int sw1 = SW1;
 
     signal(SIGINT, signal_handler);
 
@@ -641,10 +635,7 @@ int main(void)
     gpiod_line_config_free(config);
     gpiod_line_settings_free(settings);
     gpiod_chip_close(chip);
-
-    if (uart_fd >= 0) {
-        close(uart_fd);
-    }
+    close(uart_fd);
 
     return 0;
 }
@@ -680,7 +671,6 @@ int main(void)
 #include <stdio.h>
 #include <stdbool.h>
 #include <signal.h>
-#include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <errno.h>
@@ -704,10 +694,6 @@ void signal_handler(int signal_number)
 int main(void)
 {
     const unsigned int led_offset = LED1;
-    const struct timespec interval = {
-        .tv_sec = TIMER_SEC,
-        .tv_nsec = TIMER_NSEC
-    };
 
     const struct itimerspec timer = {
         .it_value = {
@@ -728,8 +714,6 @@ int main(void)
     bool led_state = false;
     uint64_t total;
     int timer_fd = -1;
-
-    (void)interval;
 
     // LEDを出力に設定し、初期状態を消灯にする
     gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT);
