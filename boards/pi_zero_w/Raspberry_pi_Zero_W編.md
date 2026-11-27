@@ -6,3 +6,7 @@
 - [BOOT UART設定](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html?utm_source=chatgpt.com)
 - [GDB Documentation](https://www.sourceware.org/gdb/documentation/)
 - [pthreads(7) - Linux Programmer's Manual](https://linuxjm.sourceforge.io/html/LDP_man-pages/man7/pthreads.7.html)
+- [Raspberry PiのセットアップからPython環境のインストールまで](https://qiita.com/nsuhara/items/05a2b41d94ced1f54316)
+- [おまいらのthreading.Eventの使い方は間違っている](https://qiita.com/tag1216/items/2dcb112f8018eb19a999)
+- [threading --- スレッドベースの並列処理](https://docs.python.org/ja/3/library/threading.html)
+- [queue --- 同期キュークラス](https://docs.python.org/ja/3/library/queue.html)
