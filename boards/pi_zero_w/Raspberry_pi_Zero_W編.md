@@ -419,8 +419,450 @@ Tera Term の SSH 画面で ./led_blink を実行する。赤 LED が約 0.5 秒
 
 
 ### 4.2 題材2:ボタン入力
+
+- **①作るもの:** 白スイッチを押している間だけ赤LEDを点灯
+- **②配線:** LED1(赤) = BCM 17, SW1(白スイッチ) = 24
+- **③プログラム:** 使うライブラリ gpiod
+
+<details>
+    <summary>no2.c</summary>
+
+```C
+#define _POSIX_C_SOURCE 200809L
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <signal.h>
+#include <time.h>
+#include <gpiod.h>
+
+#define CHIP_PATH   "/dev/gpiochip0"
+#define LED1        17U
+#define SW1         24U
+#define SLEEP_TIME  50000000L
+
+static volatile sig_atomic_t stop_flag = 0;
+
+void signal_handler(int signal_number)
+{
+    (void)signal_number;
+    stop_flag = 1;
+}
+
+int main(void)
+{
+    const unsigned int led_offset = LED1;
+    const unsigned int sw_offset = SW1;
+    const struct timespec interval = {
+        .tv_sec = 0,
+        .tv_nsec = SLEEP_TIME
+    };
+
+    struct gpiod_chip *chip = gpiod_chip_open(CHIP_PATH);
+    struct gpiod_line_settings *settings = gpiod_line_settings_new();
+    struct gpiod_line_config *config = gpiod_line_config_new();
+    struct gpiod_line_request *request = NULL;
+
+    bool current_state;
+    bool last_state = false;
+
+    // LEDを出力に設定
+    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT);
+    gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_config_add_line_settings(config, &led_offset, 1U, settings);
+
+    // SWを入力に設定
+    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_INPUT);
+    gpiod_line_settings_set_bias(settings, GPIOD_LINE_BIAS_PULL_DOWN);
+    gpiod_line_config_add_line_settings(config, &sw_offset, 1U, settings);
+
+    // GPIOラインを要求
+    request = gpiod_chip_request_lines(chip, NULL, config);
+
+    signal(SIGINT, signal_handler);
+
+    printf("SW1を押す:LED1(赤)点灯\n");
+    printf("Ctrl+C:プログラム終了\n");
+
+    while (!stop_flag) {
+
+        // SWの状態を取得
+        int sw_value = gpiod_line_request_get_value(request, sw_offset);
+
+        current_state = (sw_value == GPIOD_LINE_VALUE_ACTIVE);
+
+        // LEDの状態を設定
+        int led_value = current_state
+            ? GPIOD_LINE_VALUE_ACTIVE
+            : GPIOD_LINE_VALUE_INACTIVE;
+
+        gpiod_line_request_set_value(request, led_offset, led_value);
+
+        // OFFからONに変化した場合
+        if (current_state && !last_state) {
+            printf("LED点灯\n");
+        }
+
+        last_state = current_state;
+
+        // 50ms待機
+        nanosleep(&interval, NULL);
+    }
+
+    printf("\n動作を終了します。\n");
+
+    // cleanup
+    gpiod_line_request_set_value(request, led_offset, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_request_release(request);
+    gpiod_line_config_free(config);
+    gpiod_line_settings_free(settings);
+    gpiod_chip_close(chip);
+
+    return 0;
+}
+
+```
+
+</details>
+
+- **④ ビルドと書込み**
+
+1. 作業フォルダの 1 つ上のフォルダを開いた **開発 PC のターミナル**で、`no2.c` を Raspberry Pi Zero W に転送する。
+
+   ```powershell
+   scp ".\フォルダ名\no2.c" "ユーザー名@ホスト名:フォルダ名/"
+   ```
+
+2. **Raspberry Pi Zero W のターミナル**で、転送先の作業フォルダに移動する。
+
+   ```bash
+   cd ~/"フォルダ名"
+   ```
+
+3. 同じターミナルでビルドする。コマンドがエラーなく終わり、実行ファイル `no2` が表示されればビルド完了。
+
+   ```bash
+   make no2 && ls -l no2
+   ```
+
+4. **Raspberry Pi Zero W のターミナル**で、実行ファイルを起動する。
+
+   ```bash
+   ./no2
+   ```
+
+- **⑤動作確認:**
+![題材2_動作結果](images/no2_result.png)
+
+> 確認: 白スイッチを押すとRaspberry Pi基盤上の赤LEDが点灯し、CLI上に"LED点灯"と出力されることを確認する。
+
 ### 4.3 題材3:UART出力
+
+
+- **①作るもの:** 白スイッチを押した回数をパソコンに表示する
+- **②配線:** LED1(赤) = SW1(白スイッチ) = 24
+- **③プログラム:** 使うライブラリ gpiozero, pyserial
+
+<details>
+    <summary>no3.c</summary>
+
+```C
+#define _POSIX_C_SOURCE 200809L
+#define _DEFAULT_SOURCE
+
+#include <gpiod.h>
+#include <stdio.h>
+#include <signal.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <termios.h>
+#include <time.h>
+
+#define CHIP_PATH   "/dev/gpiochip0"
+#define SW1         24U
+#define UART_PATH   "/dev/ttyS0"
+#define BAUDRATE    B115200
+
+#define MESSAGE     "ボタン押下検知"
+
+volatile sig_atomic_t stop_flag = 0;
+
+void signal_handler(int signal_no)
+{
+    (void)signal_no;
+    stop_flag = 1;
+}
+
+int main(void)
+{
+    unsigned int sw1 = SW1;
+
+    struct gpiod_chip *chip = NULL;
+    struct gpiod_line_settings *settings = NULL;
+    struct gpiod_line_config *config = NULL;
+    struct gpiod_line_request *request = NULL;
+    struct gpiod_request_config *request_config = NULL;
+
+    struct termios uart_settings;
+    int uart_fd = -1;
+    int value;
+    int count = 0;
+    char data[32];
+    int data_size;
+
+    struct timespec delay = {0, 100000000L};
+
+    signal(SIGINT, signal_handler);
+
+    /* UART初期化 */
+    uart_fd = open(UART_PATH, O_RDWR | O_NOCTTY);
+
+    tcgetattr(uart_fd, &uart_settings);
+
+    cfmakeraw(&uart_settings);
+    cfsetispeed(&uart_settings, BAUDRATE);
+    cfsetospeed(&uart_settings, BAUDRATE);
+
+    uart_settings.c_cflag |= (CLOCAL | CREAD);
+    uart_settings.c_cflag &= ~CSTOPB;
+    uart_settings.c_cflag &= ~PARENB;
+    uart_settings.c_cflag &= ~CSIZE;
+    uart_settings.c_cflag |= CS8;
+
+    tcsetattr(uart_fd, TCSANOW, &uart_settings);
+
+    tcflush(uart_fd, TCOFLUSH);
+    nanosleep(&(struct timespec){1, 0}, NULL);
+
+    /* GPIO初期化 */
+    chip = gpiod_chip_open(CHIP_PATH);
+    settings = gpiod_line_settings_new();
+    config = gpiod_line_config_new();
+
+    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_INPUT);
+    gpiod_line_settings_set_bias(settings, GPIOD_LINE_BIAS_PULL_DOWN);
+    gpiod_line_config_add_line_settings(config, &sw1, 1, settings);
+    request = gpiod_chip_request_lines(chip, request_config, config);
+
+    /* ボタン押下検知 */
+    while (!stop_flag) {
+        nanosleep(&delay, NULL);
+
+        value = gpiod_line_request_get_value(request, SW1);
+
+        if (value == 1) {
+            count++;
+
+            printf("%s\n", MESSAGE);
+
+            data_size = snprintf(data, sizeof(data),"Count:%d\r\n", count);
+
+            write(uart_fd, data, (size_t)data_size);
+
+            /* ボタンが離されるまで待機 */
+            while (!stop_flag) {
+                value = gpiod_line_request_get_value(request, SW1);
+
+                if (value == 0) {
+                    break;
+                }
+
+                nanosleep(&(struct timespec){0, 50000000L}, NULL);
+            }
+        }
+    }
+
+    printf("\n終了\n");
+
+    // clean up
+    gpiod_line_request_release(request);
+    gpiod_line_config_free(config);
+    gpiod_line_settings_free(settings);
+    gpiod_chip_close(chip);
+    close(uart_fd);
+
+    return 0;
+}
+
+```
+
+</details>
+
+- **④ ビルドと書込み**
+
+1. 作業フォルダの 1 つ上のフォルダを開いた **開発 PC のターミナル**で、`no3.c` を Raspberry Pi Zero W に転送する。
+
+   ```powershell
+   scp ".\フォルダ名\no3.c" "ユーザー名@ホスト名:フォルダ名/"
+   ```
+
+2. **Raspberry Pi Zero W のターミナル**で、転送先の作業フォルダに移動する。
+
+   ```bash
+   cd ~/"フォルダ名"
+   ```
+
+3. 同じターミナルでビルドする。コマンドがエラーなく終わり、実行ファイル `no3` が表示されればビルド完了。
+
+   ```bash
+   make no3 && ls -l no3
+   ```
+
+4. **Raspberry Pi Zero W のターミナル**で、実行ファイルを起動する。
+
+   ```bash
+   ./no2
+   ```
+
+- **⑤動作確認:**
+
+![題材3_動作結果](images/no3_result.png)
+
+> 確認: 白スイッチを押すと、CLI上に"ボタン押下検知"と出力されることを確認する。シリアル通信のCLI上に押下回数が出力されることを確認する。
+
 ### 4.4 題材4:タイマ割込み
+
+- **①作るもの:** 一定の周期で赤LEDを点滅
+- **②配線:** LED1(赤) = 17
+- **③プログラム:** 使うライブラリ gpiod
+
+<details>
+    <summary>no4.c</summary>
+
+```C
+#define _POSIX_C_SOURCE 200809L
+
+#include <stdio.h>
+#include <stdbool.h>
+#include <signal.h>
+#include <stdint.h>
+#include <unistd.h>
+#include <errno.h>
+#include <time.h>
+#include <sys/timerfd.h>
+#include <gpiod.h>
+
+#define CHIP_PATH       "/dev/gpiochip0"
+#define LED1            17U
+#define TIMER_SEC       0
+#define TIMER_NSEC      500000000L
+
+static volatile sig_atomic_t stop_flag = 0;
+
+void signal_handler(int signal_number)
+{
+    (void)signal_number;
+    stop_flag = 1;
+}
+
+int main(void)
+{
+    const unsigned int led_offset = LED1;
+
+    const struct itimerspec timer = {
+        .it_value = {
+            .tv_sec = TIMER_SEC,
+            .tv_nsec = TIMER_NSEC
+        },
+        .it_interval = {
+            .tv_sec = TIMER_SEC,
+            .tv_nsec = TIMER_NSEC
+        }
+    };
+
+    struct gpiod_chip *chip = gpiod_chip_open(CHIP_PATH);
+    struct gpiod_line_settings *settings = gpiod_line_settings_new();
+    struct gpiod_line_config *config = gpiod_line_config_new();
+    struct gpiod_line_request *request = NULL;
+
+    bool led_state = false;
+    uint64_t total;
+    int timer_fd = -1;
+
+    // LEDを出力に設定し、初期状態を消灯にする
+    gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT);
+    gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_config_add_line_settings(config, &led_offset, 1U, settings);
+
+    // GPIOラインを要求
+    request = gpiod_chip_request_lines(chip, NULL, config);
+
+    // タイマーを作成
+    timer_fd = timerfd_create(CLOCK_MONOTONIC, 0);
+
+    // 初回0.5秒、以降0.5秒間隔でタイマーを設定
+    timerfd_settime(timer_fd, 0, &timer, NULL);
+
+    signal(SIGINT, signal_handler);
+
+    printf("Ctrl+C:プログラム終了\n");
+
+    while (!stop_flag) {
+
+        // タイマー通知を読み取る
+        ssize_t read_size = read(timer_fd, &total, sizeof(total));
+
+        // タイマー通知があればLEDを反転
+        if (total != 0U) {
+            led_state = !led_state;
+
+            int led_value = led_state
+                ? GPIOD_LINE_VALUE_ACTIVE
+                : GPIOD_LINE_VALUE_INACTIVE;
+
+            gpiod_line_request_set_value(request, led_offset, led_value);
+        }
+    }
+
+    printf("\n動作を終了します。\n");
+
+    // cleanup
+    gpiod_line_request_set_value(request, led_offset, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_request_release(request);
+    close(timer_fd);
+    gpiod_line_config_free(config);
+    gpiod_line_settings_free(settings);
+    gpiod_chip_close(chip);
+
+    return 0;
+}
+
+```
+
+</details>
+
+- **④ ビルドと書込み**
+
+1. 作業フォルダの 1 つ上のフォルダを開いた **開発 PC のターミナル**で、`no4.c` を Raspberry Pi Zero W に転送する。
+
+   ```powershell
+   scp ".\フォルダ名\no4.c" "ユーザー名@ホスト名:フォルダ名/"
+   ```
+
+2. **Raspberry Pi Zero W のターミナル**で、転送先の作業フォルダに移動する。
+
+   ```bash
+   cd ~/"フォルダ名"
+   ```
+
+3. 同じターミナルでビルドする。コマンドがエラーなく終わり、実行ファイル `no4` が表示されればビルド完了。
+
+   ```bash
+   make no4 && ls -l no4
+   ```
+
+4. **Raspberry Pi Zero W のターミナル**で、実行ファイルを起動する。
+
+   ```bash
+   ./no4
+   ```
+
+- **⑤動作確認:**
+
+![題材4_動作結果](images/no4_result.png)
+
+> 確認: 一定周期で赤LEDが点灯できていることを確認する。
+
 
 ## 5. コーディング・ビルド・書込み(FreeRTOS)
 
