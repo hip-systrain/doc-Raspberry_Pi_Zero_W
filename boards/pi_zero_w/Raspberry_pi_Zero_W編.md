@@ -10,5 +10,5 @@
 | GDB の `info locals` や `info registers` で変数・レジスタを確認できない | プログラムが終了している、または確認対象の処理位置に停止していないため。 | ブレークポイントを設定し、プログラムの実行中に停止させてから確認する。 |
 | GPIO 制御プログラムを実行しても LED が点灯しない | 直前に実行した GPIO 操作コマンドが GPIO を使用したままになっている可能性があるため。 | GPIO を操作しているコマンドやプログラムを終了する。改善しない場合は Raspberry Pi Zero W を再起動する。プログラムでは GPIO の使用終了処理を行う。 |
 | シリアル接続の Tera Term 画面に何も表示されない | Raspberry Pi Zero W のシリアルポートやシリアルログインが無効になっているため | SSH 接続で Raspberry Pi Zero W に接続し、`sudo raspi-config` を実行する。`Interface Options` → `Serial Port` を選択し、シリアルログインとシリアルポートの設定を有効にする。設定後、Raspberry Pi Zero W を再起動する。 |
-| シリアル接続で `login:` は表示されるが、ユーザー名を入力できない | PC から Raspberry Pi Zero W への送信経路が接続されていないため。 | Raspberry Pi Zero W の GPIO15 RXD（物理ピン10）と、CH340E の TXD を接続する。Raspberry Pi Zero W の GPIO14 TXD（物理ピン8）と CH340E の RXD、GND 同士も接続する。 |
+| シリアル接続で `login:` は表示されるが、ユーザー名を入力できない | CH340E の TXD を Raspberry Pi Zero W の GPIO15 RXD に接続していないため。 | Raspberry Pi Zero W の GPIO15 RXD（物理ピン10）と CH340E の TXD は接続しない。CH340E の TXD は 5V 信号であり、Raspberry Pi Zero W の GPIO は 3.3V 信号のため、接続すると Raspberry Pi Zero W が破損するおそれがある。シリアル接続では Raspberry Pi Zero W から PC への出力のみを使用する。 |
 | Tera Term で新しい接続を作成すると、シリアルを選択できない | 別のアプリケーションが使用しているため。 | Tera Term の接続をすべて閉じてから再度接続する。 |
