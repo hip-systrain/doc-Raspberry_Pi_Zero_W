@@ -62,7 +62,6 @@ FreeRTOSでは、pthreadと似た目的で使用する関数がある。ただ�
 | ---- | ---- | ---- |
 | スレッド・タスクの作成 | `pthread_create()` | `xTaskCreate()` |
 | スレッドの終了待ち | `pthread_join()` | 直接対応する標準関数はない |
-| 待機処理 | `sleep()` | `vTaskDelay()` |
 | 排他制御 | `pthread_mutex_lock()`、`pthread_mutex_unlock()` | `xSemaphoreTake()`、`xSemaphoreGive()` |
 
 `pthread_join()`は、指定したスレッドが終了するまで待つ関数である。
