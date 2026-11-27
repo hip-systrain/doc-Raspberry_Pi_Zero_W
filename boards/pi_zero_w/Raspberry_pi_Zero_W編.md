@@ -199,54 +199,33 @@ static struct gpiod_line_request* request_gpio(
     settings = gpiod_line_settings_new();
 
     /* GPIOの入出力方向を設定する */
-    if (gpiod_line_settings_set_direction(settings, direction) < 0) {
-        perror("gpiod_line_settings_set_direction");
-        goto cleanup;
-    }
+    gpiod_line_settings_set_direction(settings, direction);
 
     /* GPIOを出力として使用する場合 */
     if (direction == GPIOD_LINE_DIRECTION_OUTPUT) {
 
         /* 初期状態をLOW（消灯）に設定する */
-        if (gpiod_line_settings_set_output_value(
-                settings, GPIOD_LINE_VALUE_INACTIVE) < 0) {
-            perror("gpiod_line_settings_set_output_value");
-            goto cleanup;
-        }
-
+        gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
     } else {
 
         /* GPIOを入力として使用する場合 */
         /* 内部プルダウン抵抗を有効にする */
-        if (gpiod_line_settings_set_bias(
-                settings, GPIOD_LINE_BIAS_PULL_DOWN) < 0) {
-            perror("gpiod_line_settings_set_bias");
-            goto cleanup;
-        }
+        gpiod_line_settings_set_bias(settings, GPIOD_LINE_BIAS_PULL_DOWN);
     }
 
     /* GPIOの設定をまとめるための領域を作成する */
     line_config = gpiod_line_config_new();
 
     /* 指定したGPIO番号に設定を適用する */
-    if (gpiod_line_config_add_line_settings(
-            line_config, &offset, 1, settings) < 0) {
-        perror("gpiod_line_config_add_line_settings");
-        goto cleanup;
-    }
+    gpiod_line_config_add_line_settings(line_config, &offset, 1, settings);
 
     /* GPIOチップに対してGPIOの使用を要求する */
     request = gpiod_chip_request_lines(chip, NULL, line_config);
 
-cleanup:
+    // cleanup
     /* 使用が終わった設定情報を解放する */
-    if (line_config != NULL) {
-        gpiod_line_config_free(line_config);
-    }
-
-    if (settings != NULL) {
-        gpiod_line_settings_free(settings);
-    }
+    gpiod_line_config_free(line_config);
+    gpiod_line_settings_free(settings);
 
     /* GPIOの要求結果を呼び出し元に返す */
     return request;
@@ -294,36 +273,26 @@ static void* led_thread(void* arg)
     chip = gpiod_chip_open("/dev/gpiochip0");
 
     /* LED用GPIOを出力として要求する */
-    request = request_gpio(
-        chip, LED_GPIO, GPIOD_LINE_DIRECTION_OUTPUT);
+    request = request_gpio(chip, LED_GPIO, GPIOD_LINE_DIRECTION_OUTPUT);
 
     /* 終了要求が出るまでLEDの点灯・消灯を繰り返す */
     while (!is_stopping(data)) {
 
         /* LEDを点灯する（HIGH） */
-        if (gpiod_line_request_set_value(
-                request, LED_GPIO, GPIOD_LINE_VALUE_ACTIVE) < 0) {
-            perror("LED ON");
-            break;
-        }
+        gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_ACTIVE);
 
         /* 1秒間待機する */
         sleep(1);
 
         /* LEDを消灯する（LOW） */
-        if (gpiod_line_request_set_value(
-                request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE) < 0) {
-            perror("LED OFF");
-            break;
-        }
+        gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
 
         /* 1秒間待機する */
         sleep(1);
     }
 
     /* スレッド終了時にLEDが点灯したままにならないよう消灯する */
-    gpiod_line_request_set_value(
-        request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
 
     /* LED用GPIOの使用を終了する */
     gpiod_line_request_release(request);
@@ -359,8 +328,7 @@ static void* switch_thread(void* arg)
     chip = gpiod_chip_open("/dev/gpiochip0");
 
     /* スイッチ用GPIOを入力として要求する */
-    request = request_gpio(
-        chip, SWITCH_GPIO, GPIOD_LINE_DIRECTION_INPUT);
+    request = request_gpio(chip, SWITCH_GPIO, GPIOD_LINE_DIRECTION_INPUT);
 
     /* 終了要求が出るまでスイッチの入力を監視する */
     while (!is_stopping(data)) {
@@ -415,18 +383,21 @@ int main(void)
         .stop_flag = 0
     };
 
-    /* pthread関数の戻り値を格納する変数 */
-    int ret;
-
     /* LED制御用スレッドを作成する */
-    ret = pthread_create(&led_id, NULL, led_thread, &data);
+    pthread_create(&led_id, NULL, led_thread, &data);
 
     /* スイッチ入力用スレッドを作成する */
-    ret = pthread_create(&switch_id, NULL, switch_thread, &data);
+    pthread_create(&switch_id, NULL, switch_thread, &data);
 
     /* 2つのスレッドによる並行処理を30秒間実行する */
     printf("30秒間、並行処理を実行します。\n");
     sleep(30);
+
+    /*
+     * 30秒経過したため、各スレッドに終了を通知する。
+     * stop_flagは複数スレッドから参照されるため、
+     * mutexを使用して安全に変更する。
+     */
 
     /* 終了フラグを変更するためmutexをロックする */
     pthread_mutex_lock(&data.mutex);
@@ -658,62 +629,31 @@ static struct gpiod_line_request* request_gpio(
 
     /* GPIOの設定を作成する */
     settings = gpiod_line_settings_new();
-    if (settings == NULL) {
-        perror("gpiod_line_settings_new");
-        goto cleanup;
-    }
 
     /* GPIOの入出力方向を設定する */
-    if (gpiod_line_settings_set_direction(settings, direction) < 0) {
-        perror("gpiod_line_settings_set_direction");
-        goto cleanup;
-    }
+    gpiod_line_settings_set_direction(settings, direction);
 
     if (direction == GPIOD_LINE_DIRECTION_OUTPUT) {
         /* 出力の場合は初期状態をLOWにする */
-        if (gpiod_line_settings_set_output_value(
-                settings, GPIOD_LINE_VALUE_INACTIVE) < 0) {
-            perror("gpiod_line_settings_set_output_value");
-            goto cleanup;
-        }
+        gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
     } else {
         /* 入力の場合はプルダウンを設定する */
-        if (gpiod_line_settings_set_bias(
-                settings, GPIOD_LINE_BIAS_PULL_DOWN) < 0) {
-            perror("gpiod_line_settings_set_bias");
-            goto cleanup;
-        }
+        gpiod_line_settings_set_bias(settings, GPIOD_LINE_BIAS_PULL_DOWN);
     }
 
     /* GPIOの設定をまとめるための設定オブジェクトを作成する */
     line_config = gpiod_line_config_new();
-    if (line_config == NULL) {
-        perror("gpiod_line_config_new");
-        goto cleanup;
-    }
 
     /* 指定したGPIO番号に設定を適用する */
-    if (gpiod_line_config_add_line_settings(
-            line_config, &offset, 1, settings) < 0) {
-        perror("gpiod_line_config_add_line_settings");
-        goto cleanup;
-    }
+    gpiod_line_config_add_line_settings(line_config, &offset, 1, settings);
 
     /* GPIOの使用を要求する */
     request = gpiod_chip_request_lines(chip, NULL, line_config);
-    if (request == NULL) {
-        perror("gpiod_chip_request_lines");
-    }
 
-cleanup:
+    // cleanup
     /* 設定オブジェクトを解放する */
-    if (line_config != NULL) {
-        gpiod_line_config_free(line_config);
-    }
-
-    if (settings != NULL) {
-        gpiod_line_settings_free(settings);
-    }
+    gpiod_line_config_free(line_config);
+    gpiod_line_settings_free(settings);
 
     return request;
 }
@@ -737,8 +677,7 @@ static void* led_thread(void* arg)
     chip = gpiod_chip_open("/dev/gpiochip0");
 
     /* LED用GPIOを出力として要求する */
-    request = request_gpio(
-        chip, LED_GPIO, GPIOD_LINE_DIRECTION_OUTPUT);
+    request = request_gpio(chip, LED_GPIO, GPIOD_LINE_DIRECTION_OUTPUT);
 
     while (1) {
         /* 共有変数を取得するため、ミューテックスをロックする */
@@ -756,29 +695,20 @@ static void* led_thread(void* arg)
         }
 
         /* LEDを点灯する */
-        if (gpiod_line_request_set_value(
-                request, LED_GPIO, GPIOD_LINE_VALUE_ACTIVE) < 0) {
-            perror("LED ON");
-            break;
-        }
+        gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_ACTIVE);
 
         /* 点灯状態を指定時間維持する */
         sleep_ms((unsigned int)(interval * 1000));
 
         /* LEDを消灯する */
-        if (gpiod_line_request_set_value(
-                request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE) < 0) {
-            perror("LED OFF");
-            break;
-        }
+        gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
 
         /* 消灯状態を指定時間維持する */
         sleep_ms((unsigned int)(interval * 1000));
     }
 
     /* スレッド終了時にLEDを消灯する */
-    gpiod_line_request_set_value(
-        request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
 
     /* GPIOの要求を解除する */
     gpiod_line_request_release(request);
@@ -809,8 +739,7 @@ static void* switch_thread(void* arg)
     chip = gpiod_chip_open("/dev/gpiochip0");
 
     /* スイッチ用GPIOを入力として要求する */
-    request = request_gpio(
-        chip, SWITCH_GPIO, GPIOD_LINE_DIRECTION_INPUT);
+    request = request_gpio(chip, SWITCH_GPIO, GPIOD_LINE_DIRECTION_INPUT);
 
     while (1) {
         /* 終了要求があれば、入力監視を終了する */
@@ -832,8 +761,7 @@ static void* switch_thread(void* arg)
                 sleep_ms(30);
 
                 /* 待機後にスイッチの状態を再確認する */
-                value = gpiod_line_request_get_value(
-                    request, SWITCH_GPIO);
+                value = gpiod_line_request_get_value(request, SWITCH_GPIO);
 
                 /* 待機後もHIGHであれば、押下を確定する */
                 if (value == GPIOD_LINE_VALUE_ACTIVE) {
@@ -947,6 +875,7 @@ int main(void)
 
     return 0;
 }
+
 ```
 
 </details>

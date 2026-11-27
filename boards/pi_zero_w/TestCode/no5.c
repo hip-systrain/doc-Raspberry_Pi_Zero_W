@@ -41,67 +41,35 @@ static struct gpiod_line_request* request_gpio(
 
     /* GPIOの設定を作成する */
     settings = gpiod_line_settings_new();
-    if (settings == NULL) {
-        perror("gpiod_line_settings_new");
-        goto cleanup;
-    }
 
     /* GPIOの入出力方向を設定する */
-    if (gpiod_line_settings_set_direction(settings, direction) < 0) {
-        perror("gpiod_line_settings_set_direction");
-        goto cleanup;
-    }
+    gpiod_line_settings_set_direction(settings, direction);
 
     /* GPIOを出力として使用する場合 */
     if (direction == GPIOD_LINE_DIRECTION_OUTPUT) {
 
         /* 初期状態をLOW（消灯）に設定する */
-        if (gpiod_line_settings_set_output_value(
-                settings, GPIOD_LINE_VALUE_INACTIVE) < 0) {
-            perror("gpiod_line_settings_set_output_value");
-            goto cleanup;
-        }
-
+        gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
     } else {
 
         /* GPIOを入力として使用する場合 */
         /* 内部プルダウン抵抗を有効にする */
-        if (gpiod_line_settings_set_bias(
-                settings, GPIOD_LINE_BIAS_PULL_DOWN) < 0) {
-            perror("gpiod_line_settings_set_bias");
-            goto cleanup;
-        }
+        gpiod_line_settings_set_bias(settings, GPIOD_LINE_BIAS_PULL_DOWN);
     }
 
     /* GPIOの設定をまとめるための領域を作成する */
     line_config = gpiod_line_config_new();
-    if (line_config == NULL) {
-        perror("gpiod_line_config_new");
-        goto cleanup;
-    }
 
     /* 指定したGPIO番号に設定を適用する */
-    if (gpiod_line_config_add_line_settings(
-            line_config, &offset, 1, settings) < 0) {
-        perror("gpiod_line_config_add_line_settings");
-        goto cleanup;
-    }
+    gpiod_line_config_add_line_settings(line_config, &offset, 1, settings);
 
     /* GPIOチップに対してGPIOの使用を要求する */
     request = gpiod_chip_request_lines(chip, NULL, line_config);
-    if (request == NULL) {
-        perror("gpiod_chip_request_lines");
-    }
 
-cleanup:
+    // cleanup
     /* 使用が終わった設定情報を解放する */
-    if (line_config != NULL) {
-        gpiod_line_config_free(line_config);
-    }
-
-    if (settings != NULL) {
-        gpiod_line_settings_free(settings);
-    }
+    gpiod_line_config_free(line_config);
+    gpiod_line_settings_free(settings);
 
     /* GPIOの要求結果を呼び出し元に返す */
     return request;
@@ -147,48 +115,28 @@ static void* led_thread(void* arg)
 
     /* GPIOチップを開く */
     chip = gpiod_chip_open("/dev/gpiochip0");
-    if (chip == NULL) {
-        perror("gpiod_chip_open");
-        return NULL;
-    }
 
     /* LED用GPIOを出力として要求する */
-    request = request_gpio(
-        chip, LED_GPIO, GPIOD_LINE_DIRECTION_OUTPUT);
-
-    /* GPIOの要求に失敗した場合は終了する */
-    if (request == NULL) {
-        gpiod_chip_close(chip);
-        return NULL;
-    }
+    request = request_gpio(chip, LED_GPIO, GPIOD_LINE_DIRECTION_OUTPUT);
 
     /* 終了要求が出るまでLEDの点灯・消灯を繰り返す */
     while (!is_stopping(data)) {
 
         /* LEDを点灯する（HIGH） */
-        if (gpiod_line_request_set_value(
-                request, LED_GPIO, GPIOD_LINE_VALUE_ACTIVE) < 0) {
-            perror("LED ON");
-            break;
-        }
+        gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_ACTIVE);
 
         /* 1秒間待機する */
         sleep(1);
 
         /* LEDを消灯する（LOW） */
-        if (gpiod_line_request_set_value(
-                request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE) < 0) {
-            perror("LED OFF");
-            break;
-        }
+        gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
 
         /* 1秒間待機する */
         sleep(1);
     }
 
     /* スレッド終了時にLEDが点灯したままにならないよう消灯する */
-    gpiod_line_request_set_value(
-        request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
+    gpiod_line_request_set_value(request, LED_GPIO, GPIOD_LINE_VALUE_INACTIVE);
 
     /* LED用GPIOの使用を終了する */
     gpiod_line_request_release(request);
@@ -222,32 +170,15 @@ static void* switch_thread(void* arg)
 
     /* GPIOチップを開く */
     chip = gpiod_chip_open("/dev/gpiochip0");
-    if (chip == NULL) {
-        perror("gpiod_chip_open");
-        return NULL;
-    }
 
     /* スイッチ用GPIOを入力として要求する */
-    request = request_gpio(
-        chip, SWITCH_GPIO, GPIOD_LINE_DIRECTION_INPUT);
-
-    /* GPIOの要求に失敗した場合は終了する */
-    if (request == NULL) {
-        gpiod_chip_close(chip);
-        return NULL;
-    }
+    request = request_gpio(chip, SWITCH_GPIO, GPIOD_LINE_DIRECTION_INPUT);
 
     /* 終了要求が出るまでスイッチの入力を監視する */
     while (!is_stopping(data)) {
 
         /* スイッチの現在の入力状態を取得する */
         value = gpiod_line_request_get_value(request, SWITCH_GPIO);
-
-        /* 入力値の取得に失敗した場合は終了する */
-        if (value < 0) {
-            perror("gpiod_line_request_get_value");
-            break;
-        }
 
         /* スイッチが押されている場合 */
         if (value == GPIOD_LINE_VALUE_ACTIVE) {
@@ -296,47 +227,11 @@ int main(void)
         .stop_flag = 0
     };
 
-    /* pthread関数の戻り値を格納する変数 */
-    int ret;
-
     /* LED制御用スレッドを作成する */
-    ret = pthread_create(&led_id, NULL, led_thread, &data);
-    if (ret != 0) {
-        /* スレッド作成に失敗した場合はエラー内容を表示する */
-        fprintf(stderr, "pthread_create: %s\n", strerror(ret));
-
-        /* mutexを破棄してプログラムを終了する */
-        pthread_mutex_destroy(&data.mutex);
-        return 1;
-    }
+    pthread_create(&led_id, NULL, led_thread, &data);
 
     /* スイッチ入力用スレッドを作成する */
-    ret = pthread_create(&switch_id, NULL, switch_thread, &data);
-    if (ret != 0) {
-        /* スレッド作成に失敗した場合はエラー内容を表示する */
-        fprintf(stderr, "pthread_create: %s\n", strerror(ret));
-
-        /*
-         * スイッチ入力用スレッドの作成に失敗したため、
-         * 先に作成したLED制御用スレッドに終了を通知する。
-         */
-
-        /* 終了フラグを変更するためmutexをロックする */
-        pthread_mutex_lock(&data.mutex);
-
-        /* LED制御用スレッドに終了を通知する */
-        data.stop_flag = 1;
-
-        /* 終了フラグの変更が終わったためmutexを解除する */
-        pthread_mutex_unlock(&data.mutex);
-
-        /* LED制御用スレッドの終了を待つ */
-        pthread_join(led_id, NULL);
-
-        /* mutexを破棄してプログラムを終了する */
-        pthread_mutex_destroy(&data.mutex);
-        return 1;
-    }
+    pthread_create(&switch_id, NULL, switch_thread, &data);
 
     /* 2つのスレッドによる並行処理を30秒間実行する */
     printf("30秒間、並行処理を実行します。\n");
